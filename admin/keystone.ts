@@ -6,6 +6,8 @@ It looks at the default export, and expects a Keystone config object.
 You can find all the config options in our docs here: https://keystonejs.com/docs/apis/config
 */
 
+require('dotenv').config()
+
 import { config } from '@keystone-6/core';
 
 // Look in the schema file for how we define our lists, and how users interact with them through graphql or the Admin UI
@@ -17,10 +19,13 @@ import { withAuth, session } from './auth';
 export default withAuth(
   // Using the config function helps typescript guide you to the available options.
   config({
+    server: {
+      port: process.env.PORT
+    },
     // the db sets the database provider - we're using sqlite for the fastest startup experience
     db: {
-      provider: 'sqlite',
-      url: 'file:./keystone.db',
+      provider: process.env.DB_PROVIDER,
+      url: process.env.DB_URL,
     },
     // This config allows us to set up features of the Admin UI https://keystonejs.com/docs/apis/config#ui
     ui: {
