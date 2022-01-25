@@ -95,7 +95,6 @@ input UserCreateInput {
 
 type FormSubmission {
   id: ID!
-  name: String
   email: String
 }
 
@@ -109,18 +108,15 @@ input FormSubmissionWhereInput {
   OR: [FormSubmissionWhereInput!]
   NOT: [FormSubmissionWhereInput!]
   id: IDFilter
-  name: StringFilter
   email: StringFilter
 }
 
 input FormSubmissionOrderByInput {
   id: OrderDirection
-  name: OrderDirection
   email: OrderDirection
 }
 
 input FormSubmissionUpdateInput {
-  name: String
   email: String
 }
 
@@ -130,7 +126,6 @@ input FormSubmissionUpdateArgs {
 }
 
 input FormSubmissionCreateInput {
-  name: String
   email: String
 }
 

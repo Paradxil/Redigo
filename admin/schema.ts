@@ -70,9 +70,15 @@ export const lists: Lists = {
             },
         },
         fields: {
-            name: text(),
             email: text({
-                isIndexed: 'unique'
+                isIndexed: 'unique',
+                validation: {
+                    isRequired: true,
+                    match: {
+                        regex: /\w*@\w*.\w{2,6}/i,
+                        explanation: "Provide a valid email address."
+                    }
+                }
             })
         }
     })

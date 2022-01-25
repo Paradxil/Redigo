@@ -20,6 +20,5 @@ model User {
 
 model FormSubmission {
   id    String @id @default(cuid())
-  name  String @default("")
   email String @unique @default("")
 }
