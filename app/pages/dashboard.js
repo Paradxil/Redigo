@@ -1,6 +1,8 @@
 import { Text, Heading, Box, Image, HStack, Button, Spinner } from "@chakra-ui/react";
 import Layout from "../components/layout";
 
+import Link from 'next/link';
+
 import { FiPlus as AddProjectIcon } from "react-icons/fi";
 
 import PROJECTS_QUERY from '../utils/queries/projects';
@@ -9,7 +11,7 @@ import { useQuery } from "@apollo/client";
 export default function Dashboard() {
     const { loading, error, data } = useQuery(PROJECTS_QUERY);
 
-    const ProjectCard = ({name, image}) => {
+    const ProjectCard = ({ name, image }) => {
         return (
             <Box background={'white'} shadow='md' rounded={8} padding={4}>
                 <Image src={image}></Image>
@@ -19,9 +21,9 @@ export default function Dashboard() {
     }
 
     const Projects = () => {
-        if(loading) {
+        if (loading) {
             return (
-                <Spinner/>
+                <Spinner />
             )
         }
 
@@ -32,9 +34,11 @@ export default function Dashboard() {
 
     return (
         <Layout title='Dashboard'>
-            <Button variant={'solid'} colorScheme='blue' leftIcon={<AddProjectIcon/>}>New Project</Button>
+            <Link href={'/editor'}>
+                <Button variant={'solid'} colorScheme='blue' leftIcon={<AddProjectIcon />}>New Project</Button>
+            </Link>
             <HStack wrap='wrap' marginTop={4}>
-                <Projects/>
+                <Projects />
             </HStack>
         </Layout>
     )
