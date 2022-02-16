@@ -8,7 +8,7 @@ import { FiPlus as AddProjectIcon } from "react-icons/fi";
 import PROJECTS_QUERY from '../utils/queries/projects';
 import { useQuery } from "@apollo/client";
 
-export default function Dashboard() {
+export default function Dashboard(props) {
     const { loading, error, data } = useQuery(PROJECTS_QUERY);
 
     const ProjectCard = ({ name, image }) => {
@@ -33,7 +33,7 @@ export default function Dashboard() {
     }
 
     return (
-        <Layout title='Dashboard'>
+        <Layout title='Dashboard' subtitle={props.user.username}>
             <Link href={'/editor'}>
                 <Button variant={'solid'} colorScheme='blue' leftIcon={<AddProjectIcon />}>New Project</Button>
             </Link>

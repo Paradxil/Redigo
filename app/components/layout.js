@@ -9,7 +9,7 @@ import { useMutation } from "@apollo/client";
 import LOGOUT_MUTATION from '../utils/queries/logout'
 import client from "../utils/client";
 
-export default function Layout({ children, title, back }) {
+export default function Layout({ children, title, subtitle, back }) {
     const router = useRouter();
 
     const [logout] = useMutation(LOGOUT_MUTATION, {
@@ -54,7 +54,10 @@ export default function Layout({ children, title, back }) {
                             </Link>
                             : ''
                     }
-                    <Heading as='h1' size='lg' flex={1}>{title}</Heading>
+                    <HStack flex={1} alignItems='baseline'>
+                        <Heading as='h1' size='lg'>{title}</Heading>
+                        <Heading as='h2' size='md' color='gray.500' padding={1}>{subtitle}</Heading>
+                    </HStack>
                     <UserMenu />
                 </HStack>
                 <Box padding={4}>
