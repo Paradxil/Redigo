@@ -1,4 +1,4 @@
-import { gpl } from '@apollo/client';
+import gpl from 'graphql-tag';
 
 export default gpl`
     mutation registerUser($username:String, $email:String, $password:String) {
