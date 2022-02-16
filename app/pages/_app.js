@@ -30,33 +30,45 @@ function MyApp({ Component, pageProps }) {
     });
 
     const isAllowed = () => {
+        console.log(user == null);
+
         if (user == null) {
-            console.log(router.pathname)
             if (['/login', '/register'].includes(router.pathname)) {
                 return true;
             }
         }
 
-        return user == null;
+        return user != null
+    }
+
+    const DisplayPage = () => {
+        console.log(isAllowed())
+
+        // Show loading icon while redirecting
+        // if not allowed to visit a page.
+        if(loading || !isAllowed()) {
+            return (
+                <Center minH='100vh'>
+                    <Spinner
+                        thickness='4px'
+                        speed='0.65s'
+                        emptyColor='gray.200'
+                        color='blue.500'
+                        size='xl'
+                    />
+                </Center>
+            )
+        }
+
+        return (
+            <Component {...pageProps} loggedIn={user != null} user={user} />
+        )
     }
 
     return (
         <ChakraProvider>
             <ApolloProvider client={client}>
-                {
-                    loading || !isAllowed() ?
-                        <Center minH='100vh'>
-                            <Spinner
-                                thickness='4px'
-                                speed='0.65s'
-                                emptyColor='gray.200'
-                                color='blue.500'
-                                size='xl'
-                            />
-                        </Center>
-                        :
-                        <Component {...pageProps} loggedIn={user != null} user={user} />
-                }
+                <DisplayPage/>
             </ApolloProvider>
         </ChakraProvider>
     )
