@@ -30,8 +30,6 @@ function MyApp({ Component, pageProps }) {
     });
 
     const isAllowed = () => {
-        console.log(user == null);
-
         if (user == null) {
             if (['/login', '/register'].includes(router.pathname)) {
                 return true;
@@ -42,8 +40,6 @@ function MyApp({ Component, pageProps }) {
     }
 
     const DisplayPage = () => {
-        console.log(isAllowed())
-
         // Show loading icon while redirecting
         // if not allowed to visit a page.
         if(loading || !isAllowed()) {
