@@ -6,13 +6,15 @@ import { useRouter } from "next/router";
 import { useMutation } from "@apollo/client";
 
 import LOGOUT_MUTATION from '../utils/queries/logout'
+import client from "../utils/client";
 
 export default function Layout({ children, title }) {
     const router = useRouter();
 
     const [logout] = useMutation(LOGOUT_MUTATION, {
-        onCompleted: (data) => {
+        onCompleted: async (data) => {
             if(data.endSession) {
+                await client.clearStore();
                 router.push('/login');
             }
         }
@@ -47,7 +49,7 @@ export default function Layout({ children, title }) {
                     <Heading as='h1' size='lg' flex={1}>{title}</Heading>
                     <UserMenu />
                 </HStack>
-                <Box>
+                <Box padding={4}>
                     {children}
                 </Box>
             </Box>
