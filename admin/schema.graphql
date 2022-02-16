@@ -3,7 +3,7 @@
 
 type User {
   id: ID!
-  name: String
+  username: String
   email: String
   password: PasswordState
 }
@@ -14,6 +14,7 @@ type PasswordState {
 
 input UserWhereUniqueInput {
   id: ID
+  username: String
   email: String
 }
 
@@ -22,7 +23,7 @@ input UserWhereInput {
   OR: [UserWhereInput!]
   NOT: [UserWhereInput!]
   id: IDFilter
-  name: StringFilter
+  username: StringFilter
   email: StringFilter
 }
 
@@ -67,7 +68,7 @@ input NestedStringFilter {
 
 input UserOrderByInput {
   id: OrderDirection
-  name: OrderDirection
+  username: OrderDirection
   email: OrderDirection
 }
 
@@ -77,7 +78,7 @@ enum OrderDirection {
 }
 
 input UserUpdateInput {
-  name: String
+  username: String
   email: String
   password: String
 }
@@ -88,7 +89,7 @@ input UserUpdateArgs {
 }
 
 input UserCreateInput {
-  name: String
+  username: String
   email: String
   password: String
 }
@@ -157,7 +158,7 @@ type Mutation {
   ): [FormSubmission]
   endSession: Boolean!
   authenticateUserWithPassword(
-    email: String!
+    username: String!
     password: String!
   ): UserAuthenticationWithPasswordResult
   createInitialUser(
@@ -179,7 +180,7 @@ type UserAuthenticationWithPasswordFailure {
 }
 
 input CreateInitialUserInput {
-  name: String
+  username: String
   email: String
   password: String
 }

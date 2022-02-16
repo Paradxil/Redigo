@@ -31,13 +31,13 @@ if (!sessionSecret) {
 // we will need their email and password.
 const { withAuth } = createAuth({
   listKey: 'User',
-  identityField: 'email',
-  sessionData: 'name',
+  identityField: 'username',
+  sessionData: 'username',
   secretField: 'password',
   initFirstItem: {
     // If there are no items in the database, keystone will ask you to create
     // a new user, filling in these fields.
-    fields: ['name', 'email', 'password'],
+    fields: ['username', 'email', 'password'],
   },
 });
 

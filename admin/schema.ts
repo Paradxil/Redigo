@@ -37,7 +37,7 @@ import { document } from '@keystone-6/fields-document';
 // that Typescript cannot easily infer.
 import { Lists } from '.keystone/types';
 
-const isAdmin = ({ session }: { session: Session }) => session?.data!=null;
+const isAdmin = ({ session }: { session: Session }) => session?.data != null;
 
 export const lists: Lists = {
     // Here we define the user list.
@@ -45,7 +45,11 @@ export const lists: Lists = {
         // Here are the fields that `User` will have. We want an email and password so they can log in
         // a name so we can refer to them, and a way to connect users to posts.
         fields: {
-            name: text({ validation: { isRequired: true } }),
+            username: text({
+                validation: { isRequired: true }, 
+                isIndexed: 'unique',
+                isFilterable: true
+            }),
             email: text({
                 validation: { isRequired: true },
                 isIndexed: 'unique',
@@ -57,7 +61,7 @@ export const lists: Lists = {
         // Here we can configure the Admin UI. We want to show a user's name and posts in the Admin UI
         ui: {
             listView: {
-                initialColumns: ['name', 'email'],
+                initialColumns: ['username', 'email'],
             },
         },
     }),
