@@ -117,6 +117,10 @@ export class Track {
     getAnimations() {
         return this.animations;
     }
+
+    setAnimations(animations) {
+        this.animations = animations;
+    }
 }
 
 // DEFAULT RENDERERS --------------------------------------------------

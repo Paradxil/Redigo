@@ -33,7 +33,8 @@ import {
     FiImage as ImageIcon,
     FiVideo as VideoIcon,
     FiBox as BackgroundIcon,
-    FiMove as DragIcon
+    FiMove as DragIcon,
+    FiEdit2 as EditIcon
 } from "react-icons/fi";
 
 import Layout from "../components/layout";
@@ -48,6 +49,7 @@ import {
 } from '@dnd-kit/core'
 
 import {
+    arrayMove,
     SortableContext,
     useSortable,
     verticalListSortingStrategy
@@ -71,9 +73,19 @@ function useTrack(name) {
         Animator.update();
     }
 
+    const reorderAnimations = (name1, name2) => {
+        let oldIndex = animations.findIndex(el => el.name === name1);
+        let newIndex = animations.findIndex(el => el.name === name2);
+
+        setAnimations([...arrayMove(animations, oldIndex, newIndex)]);
+        Animator.getTrack(name).setAnimations(animations);
+        Animator.update();
+    }
+
     return [
         animations,
-        pushAnimation
+        pushAnimation,
+        reorderAnimations
     ]
 }
 
@@ -82,23 +94,7 @@ export default function Editor() {
     const objWrapperRef = useRef(null);
     const videoInputRef = useRef(null);
 
-    const sensors = useSensors(
-        useSensor(MouseSensor, {
-            // Require the mouse to move by 10 pixels before activating
-            activationConstraint: {
-                distance: 10,
-            },
-        }),
-        useSensor(TouchSensor, {
-            // Press delay of 250ms, with tolerance of 5px of movement
-            activationConstraint: {
-                delay: 250,
-                tolerance: 5,
-            },
-        })
-    );
-
-    const [videoAnimations, pushVideoAnimation] = useTrack('video');
+    const [videoAnimations, pushVideoAnimation, reorderVideoAnimations] = useTrack('video');
 
     useEffect(() => {
         Animator.init(canvasRef.current, objWrapperRef.current);
@@ -137,70 +133,99 @@ export default function Editor() {
                 {...attributes}
                 style={style}
                 id={id}
+                p={2}
             >
-                <IconButton variant='ghost' {...listeners} icon={<DragIcon/>}/>
-                <Text>{name}</Text>
+                <IconButton variant='ghost' {...listeners} icon={<DragIcon />} />
+                <Text flex='1'>{name}</Text>
+                <ButtonGroup>
+                    <IconButton variant='ghost' icon={<EditIcon />} />
+                </ButtonGroup>
             </HStack>
         )
     }
 
     const VideoTrack = () => {
+        const sensors = useSensors(
+            useSensor(MouseSensor, {
+                // Require the mouse to move by 10 pixels before activating
+                activationConstraint: {
+                    distance: 10,
+                },
+            }),
+            useSensor(TouchSensor, {
+                // Press delay of 250ms, with tolerance of 5px of movement
+                activationConstraint: {
+                    delay: 250,
+                    tolerance: 5,
+                },
+            })
+        );
+
+        function handleDragEnd(event) {
+            const { active, over } = event;
+
+            if (active.id !== over.id) {
+                reorderVideoAnimations(active.id, over.id);
+            }
+        }
+
         return (
-            <SortableContext
-                items={videoAnimations.map(el => el.name)}
-                strategy={verticalListSortingStrategy}
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
             >
-                {videoAnimations.map(el => <VideoTrackItem key={el.name} id={el.name} name={el.name} />)}
-            </SortableContext>
+                <SortableContext
+                    items={videoAnimations.map(el => el.name)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    {videoAnimations.map(el => <VideoTrackItem key={el.name} id={el.name} name={el.name} />)}
+                </SortableContext>
+            </DndContext>
         )
     }
 
     return (
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-        >
-            <Layout title='Editor' subtitle='New Project' back='/dashboard'>
-                <Container maxW='container.xl'>
-                    <HStack bg='white' p={4} rounded={8} marginBottom={4}>
-                        <Input size='lg' placeholder='name'></Input>
-                        <Button size='lg'>Export</Button>
-                        <IconButton icon={<SaveIcon />} size='lg' variant='ghost' />
-                    </HStack>
-                    <Stack w='full' direction={{ base: 'column', md: 'row' }}>
-                        <VStack bg='white' p={4} rounded={8} flex='1'>
-                            <div id='wrapper' ref={objWrapperRef}>
-                                <canvas width='400px' height='400px' id='canvas' ref={canvasRef}></canvas>
-                            </div>
-                            <HStack>
-                                <ButtonGroup isAttached>
-                                    <IconButton icon={<PlayIcon />} />
-                                    <IconButton icon={<PauseIcon />} />
-                                </ButtonGroup>
-                                <ButtonGroup isAttached>
-                                    <IconButton icon={<PhoneIcon />} />
-                                    <IconButton icon={<InstagramIcon />} />
-                                    <IconButton icon={<YoutubeIcon />} />
-                                </ButtonGroup>
-                            </HStack>
+        <Layout title='Editor' subtitle='New Project' back='/dashboard'>
+            <Container maxW='container.xl'>
+                <HStack bg='white' p={4} rounded={8} marginBottom={4}>
+                    <Input size='lg' placeholder='name'></Input>
+                    <Button size='lg'>Export</Button>
+                    <IconButton icon={<SaveIcon />} size='lg' variant='ghost' />
+                </HStack>
+                <Stack w='full' direction={{ base: 'column', md: 'row' }}>
+                    <VStack bg='white' p={4} rounded={8} flex='1'>
+                        <div id='wrapper' ref={objWrapperRef}>
+                            <canvas width='400px' height='400px' id='canvas' ref={canvasRef}></canvas>
+                        </div>
+                        <HStack>
+                            <ButtonGroup isAttached>
+                                <IconButton icon={<PlayIcon />} />
+                                <IconButton icon={<PauseIcon />} />
+                            </ButtonGroup>
+                            <ButtonGroup isAttached>
+                                <IconButton icon={<PhoneIcon />} />
+                                <IconButton icon={<InstagramIcon />} />
+                                <IconButton icon={<YoutubeIcon />} />
+                            </ButtonGroup>
+                        </HStack>
+                    </VStack>
+                    <Box p={4} flex='1'>
+                        <Menu>
+                            <MenuButton as={Button} leftIcon={<AddIcon />}>Add Media</MenuButton>
+                            <MenuList>
+                                <MenuItem onClick={() => videoInputRef.current.click()} icon={<VideoIcon />}>Video</MenuItem>
+                                <MenuItem icon={<ImageIcon />}>Image</MenuItem>
+                                <MenuItem icon={<BackgroundIcon />}>Solid Color</MenuItem>
+                            </MenuList>
+                        </Menu>
+                        <Input type='file' ref={videoInputRef} id='video-input' hidden onChange={handleFileUpload} />
+                        <VStack w='full' marginTop={4}>
+                            <VideoTrack />
                         </VStack>
-                        <Box p={4} flex='1'>
-                            <Menu>
-                                <MenuButton as={Button} leftIcon={<AddIcon />}>Add Media</MenuButton>
-                                <MenuList>
-                                    <MenuItem onClick={() => videoInputRef.current.click()} icon={<VideoIcon />}>Video</MenuItem>
-                                    <MenuItem icon={<ImageIcon />}>Image</MenuItem>
-                                    <MenuItem icon={<BackgroundIcon />}>Solid Color</MenuItem>
-                                </MenuList>
-                            </Menu>
-                            <Input type='file' ref={videoInputRef} id='video-input' hidden onChange={handleFileUpload} />
-                            <VStack w='full' marginTop={4}>
-                                <VideoTrack />
-                            </VStack>
-                        </Box>
-                    </Stack>
-                </Container>
-            </Layout>
-        </DndContext>
+                    </Box>
+                </Stack>
+            </Container>
+        </Layout>
     )
 }
