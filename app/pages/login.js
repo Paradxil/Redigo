@@ -9,6 +9,7 @@ import LOGIN_QUERY from '../utils/queries/login';
 import { useState } from "react";
 
 import { useRouter } from 'next/router';
+import client from "../utils/client";
 
 export default function Login() {
     const router = useRouter()
@@ -25,6 +26,7 @@ export default function Login() {
                 return true
             }
 
+            client.clearStore();
             document.cookie = "keystonejs-session=" + data.loginResult.sessionToken + ";";
             router.push('/dashboard');
         },

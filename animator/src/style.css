@@ -1,0 +1,58 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+#video-wrapper {
+    position: relative;
+    width: fit-content;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+#canvas-wrapper {
+    transform-origin: top left;
+}
+
+#objects-wrapper {
+    pointer-events: none;
+    touch-action: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3840px;
+    height: 2160px;
+    transform-origin: top left;
+}
+
+.object-wrapper {
+    position: absolute;
+}
+
+.text-wrapper {
+    place-content: inherit;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0.5ch;
+    align-items: baseline;
+    max-width: inherit;
+}
+
+.text-wrapper span {
+    opacity: 0;
+    display: inline-block;
+}
+
+.word-wrapper {
+    display: inline-block;
+}
+
+.video {
+    display: none;
+}
+
+.image {
+    max-width: 100%;
+}

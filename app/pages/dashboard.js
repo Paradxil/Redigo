@@ -28,7 +28,7 @@ export default function Dashboard(props) {
         }
 
         return (
-            data.projects.map(el => <ProjectCard name={el.name} image='' />)
+            data.projects.map(el => <ProjectCard key={el.id} name={el.name} image='' />)
         )
     }
 
