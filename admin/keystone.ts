@@ -21,7 +21,7 @@ export default withAuth(
   config({
     server: {
       port: process.env.PORT||3002,
-      cors: { origin: ['http://localhost:3000']},
+      cors: { origin: ['http://localhost:3000'], credentials: true },
     },
     // the db sets the database provider - we're using sqlite for the fastest startup experience
     db: {

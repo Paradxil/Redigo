@@ -8,7 +8,11 @@ import { useMutation } from "@apollo/client";
 import LOGIN_QUERY from '../utils/queries/login';
 import { useState } from "react";
 
+import { useRouter } from 'next/router';
+
 export default function Login() {
+    const router = useRouter()
+
     const [login, { loading }] = useMutation(LOGIN_QUERY, {
         onCompleted: (data) => {
             if(!data.loginResult) {
@@ -21,7 +25,8 @@ export default function Login() {
                 return true
             }
 
-            localStorage.setItem('token', data.loginResult.sessionToken);
+            document.cookie = "keystonejs-session=" + data.loginResult.sessionToken + ";";
+            router.push('/dashboard');
         },
         onError: (error) => {
             setErrorMessage(error.message);
