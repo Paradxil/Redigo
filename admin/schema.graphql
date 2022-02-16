@@ -130,6 +130,41 @@ input FormSubmissionCreateInput {
   email: String
 }
 
+type Project {
+  id: ID!
+  name: String
+}
+
+input ProjectWhereUniqueInput {
+  id: ID
+}
+
+input ProjectWhereInput {
+  AND: [ProjectWhereInput!]
+  OR: [ProjectWhereInput!]
+  NOT: [ProjectWhereInput!]
+  id: IDFilter
+  name: StringFilter
+}
+
+input ProjectOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+}
+
+input ProjectUpdateInput {
+  name: String
+}
+
+input ProjectUpdateArgs {
+  where: ProjectWhereUniqueInput!
+  data: ProjectUpdateInput!
+}
+
+input ProjectCreateInput {
+  name: String
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -156,6 +191,15 @@ type Mutation {
   deleteFormSubmissions(
     where: [FormSubmissionWhereUniqueInput!]!
   ): [FormSubmission]
+  createProject(data: ProjectCreateInput!): Project
+  createProjects(data: [ProjectCreateInput!]!): [Project]
+  updateProject(
+    where: ProjectWhereUniqueInput!
+    data: ProjectUpdateInput!
+  ): Project
+  updateProjects(data: [ProjectUpdateArgs!]!): [Project]
+  deleteProject(where: ProjectWhereUniqueInput!): Project
+  deleteProjects(where: [ProjectWhereUniqueInput!]!): [Project]
   endSession: Boolean!
   authenticateUserWithPassword(
     username: String!
@@ -202,6 +246,14 @@ type Query {
   ): [FormSubmission!]
   formSubmission(where: FormSubmissionWhereUniqueInput!): FormSubmission
   formSubmissionsCount(where: FormSubmissionWhereInput! = {}): Int
+  projects(
+    where: ProjectWhereInput! = {}
+    orderBy: [ProjectOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Project!]
+  project(where: ProjectWhereUniqueInput!): Project
+  projectsCount(where: ProjectWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }

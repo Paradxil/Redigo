@@ -85,5 +85,10 @@ export const lists: Lists = {
                 }
             })
         }
+    }),
+    Project: list({
+        fields: {
+            name: text()
+        }
     })
 };

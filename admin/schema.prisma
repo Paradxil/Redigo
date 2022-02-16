@@ -22,3 +22,8 @@ model FormSubmission {
   id    String @id @default(cuid())
   email String @unique @default("")
 }
+
+model Project {
+  id   String @id @default(cuid())
+  name String @default("")
+}
