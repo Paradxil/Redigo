@@ -60,6 +60,7 @@ export const lists: Lists = {
         },
         // Here we can configure the Admin UI. We want to show a user's name and posts in the Admin UI
         ui: {
+            labelField: 'username',
             listView: {
                 initialColumns: ['username', 'email'],
             },
@@ -88,7 +89,17 @@ export const lists: Lists = {
     }),
     Project: list({
         fields: {
+            userid: relationship({
+                ref: 'User'
+            }),
             name: text()
+        },
+        access: {
+            filter: {
+                query: ({ session }) => {
+                    return { userid: {id: {equals: session.itemId} } }
+                }
+            }
         }
     })
 };

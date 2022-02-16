@@ -12,10 +12,11 @@ generator client {
 }
 
 model User {
-  id       String @id @default(cuid())
-  username String @unique @default("")
-  email    String @unique @default("")
-  password String
+  id                  String    @id @default(cuid())
+  username            String    @unique @default("")
+  email               String    @unique @default("")
+  password            String
+  from_Project_userid Project[] @relation("Project_userid")
 }
 
 model FormSubmission {
@@ -24,6 +25,10 @@ model FormSubmission {
 }
 
 model Project {
-  id   String @id @default(cuid())
-  name String @default("")
+  id       String  @id @default(cuid())
+  userid   User?   @relation("Project_userid", fields: [useridId], references: [id])
+  useridId String? @map("userid")
+  name     String  @default("")
+
+  @@index([useridId])
 }

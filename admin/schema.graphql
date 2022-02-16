@@ -132,6 +132,7 @@ input FormSubmissionCreateInput {
 
 type Project {
   id: ID!
+  userid: User
   name: String
 }
 
@@ -144,6 +145,7 @@ input ProjectWhereInput {
   OR: [ProjectWhereInput!]
   NOT: [ProjectWhereInput!]
   id: IDFilter
+  userid: UserWhereInput
   name: StringFilter
 }
 
@@ -153,7 +155,14 @@ input ProjectOrderByInput {
 }
 
 input ProjectUpdateInput {
+  userid: UserRelateToOneForUpdateInput
   name: String
+}
+
+input UserRelateToOneForUpdateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+  disconnect: Boolean
 }
 
 input ProjectUpdateArgs {
@@ -162,7 +171,13 @@ input ProjectUpdateArgs {
 }
 
 input ProjectCreateInput {
+  userid: UserRelateToOneForCreateInput
   name: String
+}
+
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
 }
 
 """
