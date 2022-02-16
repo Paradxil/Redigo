@@ -48,7 +48,6 @@ class Animator {
     animate() {
         for (let trackID in this.tracks) {
             let track = this.tracks[trackID];
-            let id = 0;
             for (let animation of track.animations) {
                 let factory = this.factories[animation.type];
 
@@ -58,18 +57,27 @@ class Animator {
 
                 let renderer = this.renderers[animation.type];
 
-                this.createElement(factory, animation.obj, id);
+                this.createElement(factory, animation.obj, animation.name);
 
                 this.timeLine = this.timeLine.add({
-                    targets: factory.target(id, animation.obj),
+                    targets: factory.target(animation.name, animation.obj),
                     duration: animation.duration,
                     update: () => { renderer != null ? renderer(this.ctx, animation.obj, animation, this.timeLine.currentTime) : ''; }
                 })
-
-                id += 1;
             }
         }
-        this.timeLine.play();
+    }
+
+    update() {
+        this.timeLine.pause();
+        for(let child of this.wrapper.children) {
+            if(child == this.canvas) {
+                continue;
+            }
+            this.wrapper.removeChild(child);
+        }
+        this.timeLine = anime.timeline();
+        this.animate();
     }
 
     createElement(factory, obj, id) {
@@ -93,8 +101,9 @@ export class Track {
         this.animations = [];
     }
 
-    pushAnimation(type, obj, duration) {
+    pushAnimation(type, name, obj, duration) {
         this.animations.push({
+            name: name,
             type: type,
             obj: obj,
             duration: duration
@@ -103,6 +112,10 @@ export class Track {
 
     removeAnimation(index) {
         this.animations.splice(index, 1);
+    }
+
+    getAnimations() {
+        return this.animations;
     }
 }
 
