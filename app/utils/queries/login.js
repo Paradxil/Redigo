@@ -2,7 +2,7 @@ import gpl from 'graphql-tag';
 
 const QUERY = gpl`
 mutation login($username: String!, $password: String!) {
-  authenticateUserWithPassword(username: $username, password: $password) {
+  loginResult: authenticateUserWithPassword(username: $username, password: $password) {
     ... on UserAuthenticationWithPasswordSuccess {
       sessionToken
       item {

@@ -1,5 +1,4 @@
 import { Button, Center, FormControl, FormErrorMessage, Input, VStack } from "@chakra-ui/react";
-import { FiLoader as LoadingIcon } from "react-icons/fi";
 import Logo from "../components/logo";
 
 import Link from 'next/link';
@@ -10,11 +9,31 @@ import LOGIN_QUERY from '../utils/queries/login';
 import { useState } from "react";
 
 export default function Login() {
-    const [login, { loading, error, data }] = useMutation(LOGIN_QUERY);
+    const [login, { loading }] = useMutation(LOGIN_QUERY, {
+        onCompleted: (data) => {
+            if(!data.loginResult) {
+                setErrorMessage('Error logging in.')
+                return true
+            }
+
+            if(data.loginResult.message) {
+                setErrorMessage(data.loginResult.message);
+                return true
+            }
+
+            localStorage.setItem('token', data.loginResult.sessionToken);
+        },
+        onError: (error) => {
+            setErrorMessage(error.message);
+        }
+    });
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const submit = function () {
+        setErrorMessage('');
         login({ variables: { username: username, password: password } });
     }
 
@@ -24,9 +43,9 @@ export default function Login() {
                 <Logo />
                 <Input size='lg' placeholder='username' onChange={(e) => setUsername(e.target.value)}></Input>
                 <PasswordInput size='lg' onChange={(e) => setPassword(e.target.value)} />
-                <FormControl isInvalid={error||data.message}>
+                <FormControl isInvalid={errorMessage}>
                     <Button w='full' size='lg' onClick={submit} isLoading={loading}>Login</Button>
-                    <FormErrorMessage>{data.authenticateUserWithPassword.message||error}</FormErrorMessage>
+                    <FormErrorMessage>{errorMessage}</FormErrorMessage>
                 </FormControl>
                 <Link href='register'>
                     <Button variant='link'>register</Button>
