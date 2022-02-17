@@ -77,8 +77,10 @@ function useTrack(name) {
         let oldIndex = animations.findIndex(el => el.name === name1);
         let newIndex = animations.findIndex(el => el.name === name2);
 
-        setAnimations([...arrayMove(animations, oldIndex, newIndex)]);
-        Animator.getTrack(name).setAnimations(animations);
+        let tmpAnimations = arrayMove(animations, oldIndex, newIndex);
+
+        setAnimations([...tmpAnimations]);
+        Animator.getTrack(name).setAnimations(tmpAnimations);
         Animator.update();
     }
 
@@ -93,6 +95,7 @@ export default function Editor() {
     const canvasRef = useRef(null);
     const objWrapperRef = useRef(null);
     const videoInputRef = useRef(null);
+    const imageInputRef = useRef(null);
 
     const [videoAnimations, pushVideoAnimation, reorderVideoAnimations] = useTrack('video');
 
@@ -100,12 +103,12 @@ export default function Editor() {
         Animator.init(canvasRef.current, objWrapperRef.current);
     }, []);
 
-    const handleFileUpload = (event) => {
+    const handleFileUpload = (event, type='video') => {
         if (event.target.files && event.target.files.length > 0) {
             var file = event.target.files[0];
             var src = URL.createObjectURL(file);
 
-            pushVideoAnimation('video', file.name, { src: src }, 20000)
+            pushVideoAnimation(type, file.name, { src: src }, 5000)
         }
     }
 
@@ -215,11 +218,12 @@ export default function Editor() {
                             <MenuButton as={Button} leftIcon={<AddIcon />}>Add Media</MenuButton>
                             <MenuList>
                                 <MenuItem onClick={() => videoInputRef.current.click()} icon={<VideoIcon />}>Video</MenuItem>
-                                <MenuItem icon={<ImageIcon />}>Image</MenuItem>
+                                <MenuItem onClick={() => imageInputRef.current.click()} icon={<ImageIcon />}>Image</MenuItem>
                                 <MenuItem icon={<BackgroundIcon />}>Solid Color</MenuItem>
                             </MenuList>
                         </Menu>
-                        <Input type='file' ref={videoInputRef} id='video-input' hidden onChange={handleFileUpload} />
+                        <Input type='file' ref={videoInputRef} id='video-input' hidden onChange={handleFileUpload} accept="video/*" />
+                        <Input type='file' ref={imageInputRef} id='image-input' hidden onChange={e=>handleFileUpload(e, 'image')} accept="image/*" />
                         <VStack w='full' marginTop={4}>
                             <VideoTrack />
                         </VStack>

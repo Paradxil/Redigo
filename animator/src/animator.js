@@ -21,6 +21,15 @@ class Animator {
         }
 
         this.wrapper = wrapper;
+        this.wrapper.style.position = 'relative';
+        this.wrapper.style.overflow = 'hidden';
+        this.wrapper.style.transformOrigin = 'top left';
+        this.wrapper.style.width = canvas.width + 'px';
+        this.wrapper.style.height = canvas.height + 'px';
+
+        this.objectsWrapper = document.createElement("div");
+        this.wrapper.appendChild(this.objectsWrapper);
+
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.timeLine = anime.timeline();
@@ -62,6 +71,8 @@ class Animator {
                 this.timeLine = this.timeLine.add({
                     targets: factory.target(animation.name, animation.obj),
                     duration: animation.duration,
+                    begin: () => {animation.obj.el.style.display='block'},
+                    complete: () => { animation.obj.el.style.display = 'none'},
                     update: () => { renderer != null ? renderer(this.ctx, animation.obj, animation, this.timeLine.currentTime) : ''; }
                 })
             }
@@ -70,11 +81,8 @@ class Animator {
 
     update() {
         this.timeLine.pause();
-        for(let child of this.wrapper.children) {
-            if(child == this.canvas) {
-                continue;
-            }
-            this.wrapper.removeChild(child);
+        while(this.objectsWrapper.firstChild) {
+            this.objectsWrapper.removeChild(this.objectsWrapper.firstChild);
         }
         this.timeLine = anime.timeline();
         this.animate();
@@ -83,16 +91,20 @@ class Animator {
     createElement(factory, obj, id) {
         let objEl = factory.create(obj);
         obj.el = objEl;
+        obj.el.style.display = 'none';
 
         let objWrapper = document.createElement("div");
         objWrapper.id = id;
         objWrapper.classList.add("object-wrapper");
+        objWrapper.style.position = 'absolute';
+        objWrapper.style.top = '0px';
+        objWrapper.style.left = '0px';
         objWrapper.appendChild(objEl);
 
         //let properties = getProperties(obj);
         //objWrapper.style = objectToStyle(properties);
 
-        this.wrapper.appendChild(objWrapper);
+        this.objectsWrapper.appendChild(objWrapper);
     }
 }
 
@@ -141,7 +153,15 @@ const VideoRenderer = function (ctx, obj, timeLineFrame, currentTime) {
             console.log("Unable to play video.");
         }
     }
-    ctx.drawImage(obj.el, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+
+    // Cover the canvas
+    let size = Math.min(obj.el.videoHeight, obj.el.videoWidth);
+
+    // Center the video
+    let sx = (obj.el.videoWidth - size) / 2;
+    let sy = (obj.el.videoHeight - size) / 2
+
+    ctx.drawImage(obj.el, sx, sy, size, size, 0, 0, canvas.width, canvas.height);
 }
 
 const AudioRenderer = function (ctx, obj, timeLineFrame, currentTime) {
@@ -196,6 +216,18 @@ const AudioFactory = {
     }
 }
 
+const ImageFactory = {
+    create: (obj) => {
+        var imgEl = document.createElement("img");
+        imgEl.classList.add('image');
+        imgEl.src = obj.src;
+        return imgEl;
+    },
+    target: (id, obj) => {
+        return "#" + id;
+    }
+}
+
 const TextFactory = {
     create: (obj) => {
         let textElWrapper = document.createElement("div");
@@ -236,6 +268,7 @@ const ani = new Animator();
 ani.addRenderer('video', VideoRenderer);
 ani.addRenderer('audio', AudioRenderer);
 
+ani.addFactory('image', ImageFactory);
 ani.addFactory('video', VideoFactory);
 ani.addFactory('audio', AudioFactory);
 ani.addFactory('text', TextFactory);
