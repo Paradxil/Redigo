@@ -17,6 +17,7 @@ model User {
   email               String    @unique @default("")
   password            String
   from_Project_userid Project[] @relation("Project_userid")
+  from_File_userid    File[]    @relation("File_userid")
 }
 
 model FormSubmission {
@@ -25,10 +26,35 @@ model FormSubmission {
 }
 
 model Project {
-  id       String  @id @default(cuid())
-  userid   User?   @relation("Project_userid", fields: [useridId], references: [id])
-  useridId String? @map("userid")
-  name     String  @default("")
+  id              String      @id @default(cuid())
+  userid          User?       @relation("Project_userid", fields: [useridId], references: [id])
+  useridId        String?     @map("userid")
+  name            String      @default("")
+  backgroundTrack TrackItem[] @relation("TrackItem_project")
+  files           File[]      @relation("Project_files")
+
+  @@index([useridId])
+}
+
+model TrackItem {
+  id        String   @id @default(cuid())
+  name      String   @default("")
+  project   Project? @relation("TrackItem_project", fields: [projectId], references: [id])
+  projectId String?  @map("project")
+  duration  Int?
+  data      String?
+
+  @@index([projectId])
+}
+
+model File {
+  id                 String    @id @default(cuid())
+  userid             User?     @relation("File_userid", fields: [useridId], references: [id])
+  useridId           String?   @map("userid")
+  file_filesize      Int?
+  file_mode          String?
+  file_filename      String?
+  from_Project_files Project[] @relation("Project_files")
 
   @@index([useridId])
 }

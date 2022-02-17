@@ -134,6 +134,20 @@ type Project {
   id: ID!
   userid: User
   name: String
+  backgroundTrack(
+    where: TrackItemWhereInput! = {}
+    orderBy: [TrackItemOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [TrackItem!]
+  backgroundTrackCount(where: TrackItemWhereInput! = {}): Int
+  files(
+    where: FileWhereInput! = {}
+    orderBy: [FileOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [File!]
+  filesCount(where: FileWhereInput! = {}): Int
 }
 
 input ProjectWhereUniqueInput {
@@ -147,6 +161,20 @@ input ProjectWhereInput {
   id: IDFilter
   userid: UserWhereInput
   name: StringFilter
+  backgroundTrack: TrackItemManyRelationFilter
+  files: FileManyRelationFilter
+}
+
+input TrackItemManyRelationFilter {
+  every: TrackItemWhereInput
+  some: TrackItemWhereInput
+  none: TrackItemWhereInput
+}
+
+input FileManyRelationFilter {
+  every: FileWhereInput
+  some: FileWhereInput
+  none: FileWhereInput
 }
 
 input ProjectOrderByInput {
@@ -157,12 +185,28 @@ input ProjectOrderByInput {
 input ProjectUpdateInput {
   userid: UserRelateToOneForUpdateInput
   name: String
+  backgroundTrack: TrackItemRelateToManyForUpdateInput
+  files: FileRelateToManyForUpdateInput
 }
 
 input UserRelateToOneForUpdateInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
   disconnect: Boolean
+}
+
+input TrackItemRelateToManyForUpdateInput {
+  disconnect: [TrackItemWhereUniqueInput!]
+  set: [TrackItemWhereUniqueInput!]
+  create: [TrackItemCreateInput!]
+  connect: [TrackItemWhereUniqueInput!]
+}
+
+input FileRelateToManyForUpdateInput {
+  disconnect: [FileWhereUniqueInput!]
+  set: [FileWhereUniqueInput!]
+  create: [FileCreateInput!]
+  connect: [FileWhereUniqueInput!]
 }
 
 input ProjectUpdateArgs {
@@ -173,11 +217,160 @@ input ProjectUpdateArgs {
 input ProjectCreateInput {
   userid: UserRelateToOneForCreateInput
   name: String
+  backgroundTrack: TrackItemRelateToManyForCreateInput
+  files: FileRelateToManyForCreateInput
 }
 
 input UserRelateToOneForCreateInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
+}
+
+input TrackItemRelateToManyForCreateInput {
+  create: [TrackItemCreateInput!]
+  connect: [TrackItemWhereUniqueInput!]
+}
+
+input FileRelateToManyForCreateInput {
+  create: [FileCreateInput!]
+  connect: [FileWhereUniqueInput!]
+}
+
+type TrackItem {
+  id: ID!
+  name: String
+  project: Project
+  duration: Int
+  data: JSON
+}
+
+input TrackItemWhereUniqueInput {
+  id: ID
+}
+
+input TrackItemWhereInput {
+  AND: [TrackItemWhereInput!]
+  OR: [TrackItemWhereInput!]
+  NOT: [TrackItemWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  project: ProjectWhereInput
+  duration: IntNullableFilter
+}
+
+input IntNullableFilter {
+  equals: Int
+  in: [Int!]
+  notIn: [Int!]
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  not: IntNullableFilter
+}
+
+input TrackItemOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  duration: OrderDirection
+}
+
+input TrackItemUpdateInput {
+  name: String
+  project: ProjectRelateToOneForUpdateInput
+  duration: Int
+  data: JSON
+}
+
+input ProjectRelateToOneForUpdateInput {
+  create: ProjectCreateInput
+  connect: ProjectWhereUniqueInput
+  disconnect: Boolean
+}
+
+input TrackItemUpdateArgs {
+  where: TrackItemWhereUniqueInput!
+  data: TrackItemUpdateInput!
+}
+
+input TrackItemCreateInput {
+  name: String
+  project: ProjectRelateToOneForCreateInput
+  duration: Int
+  data: JSON
+}
+
+input ProjectRelateToOneForCreateInput {
+  create: ProjectCreateInput
+  connect: ProjectWhereUniqueInput
+}
+
+type File {
+  id: ID!
+  userid: User
+  file: FileFieldOutput
+}
+
+interface FileFieldOutput {
+  filename: String!
+  filesize: Int!
+  ref: String!
+  url: String!
+}
+
+input FileWhereUniqueInput {
+  id: ID
+}
+
+type LocalFileFieldOutput implements FileFieldOutput {
+  filename: String!
+  filesize: Int!
+  ref: String!
+  url: String!
+}
+
+type CloudFileFieldOutput implements FileFieldOutput {
+  filename: String!
+  filesize: Int!
+  ref: String!
+  url: String!
+}
+
+input FileWhereInput {
+  AND: [FileWhereInput!]
+  OR: [FileWhereInput!]
+  NOT: [FileWhereInput!]
+  id: IDFilter
+  userid: UserWhereInput
+}
+
+input FileOrderByInput {
+  id: OrderDirection
+}
+
+input FileUpdateInput {
+  userid: UserRelateToOneForUpdateInput
+  file: FileFieldInput
+}
+
+input FileFieldInput {
+  upload: Upload
+  ref: String
+}
+
+"""
+The `Upload` scalar type represents a file upload.
+"""
+scalar Upload
+
+input FileUpdateArgs {
+  where: FileWhereUniqueInput!
+  data: FileUpdateInput!
+}
+
+input FileCreateInput {
+  userid: UserRelateToOneForCreateInput
+  file: FileFieldInput
 }
 
 """
@@ -215,6 +408,21 @@ type Mutation {
   updateProjects(data: [ProjectUpdateArgs!]!): [Project]
   deleteProject(where: ProjectWhereUniqueInput!): Project
   deleteProjects(where: [ProjectWhereUniqueInput!]!): [Project]
+  createTrackItem(data: TrackItemCreateInput!): TrackItem
+  createTrackItems(data: [TrackItemCreateInput!]!): [TrackItem]
+  updateTrackItem(
+    where: TrackItemWhereUniqueInput!
+    data: TrackItemUpdateInput!
+  ): TrackItem
+  updateTrackItems(data: [TrackItemUpdateArgs!]!): [TrackItem]
+  deleteTrackItem(where: TrackItemWhereUniqueInput!): TrackItem
+  deleteTrackItems(where: [TrackItemWhereUniqueInput!]!): [TrackItem]
+  createFile(data: FileCreateInput!): File
+  createFiles(data: [FileCreateInput!]!): [File]
+  updateFile(where: FileWhereUniqueInput!, data: FileUpdateInput!): File
+  updateFiles(data: [FileUpdateArgs!]!): [File]
+  deleteFile(where: FileWhereUniqueInput!): File
+  deleteFiles(where: [FileWhereUniqueInput!]!): [File]
   endSession: Boolean!
   authenticateUserWithPassword(
     username: String!
@@ -269,6 +477,22 @@ type Query {
   ): [Project!]
   project(where: ProjectWhereUniqueInput!): Project
   projectsCount(where: ProjectWhereInput! = {}): Int
+  trackItems(
+    where: TrackItemWhereInput! = {}
+    orderBy: [TrackItemOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [TrackItem!]
+  trackItem(where: TrackItemWhereUniqueInput!): TrackItem
+  trackItemsCount(where: TrackItemWhereInput! = {}): Int
+  files(
+    where: FileWhereInput! = {}
+    orderBy: [FileOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [File!]
+  file(where: FileWhereUniqueInput!): File
+  filesCount(where: FileWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }

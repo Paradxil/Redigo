@@ -25,6 +25,9 @@ import {
     password,
     timestamp,
     select,
+    file,
+    json,
+    integer,
 } from '@keystone-6/core/fields';
 // The document field is a more complicated field, so it's in its own package
 // Keystone aims to have all the base field types, but you can make your own
@@ -92,12 +95,58 @@ export const lists: Lists = {
             userid: relationship({
                 ref: 'User'
             }),
-            name: text()
+            name: text(),
+            backgroundTrack: relationship({
+                ref: 'TrackItem.project',
+                many: true
+            }),
+            files: relationship({
+                ref: 'File',
+                many: true
+            })
         },
         access: {
             filter: {
                 query: ({ session }) => {
                     return { userid: {id: {equals: session.itemId} } }
+                },
+                update: ({ session }) => {
+                    return { userid: { id: { equals: session.itemId } } }
+                },
+                delete: ({ session }) => {
+                    return { userid: { id: { equals: session.itemId } } }
+                }
+            }
+        }
+    }),
+    TrackItem: list({
+        fields: {
+            name: text(),
+            project: relationship({
+                ref: 'Project.backgroundTrack',
+                many: false
+            }),
+            duration: integer(),
+            data: json()
+        }
+    }),
+    File: list({
+        fields: {
+            userid: relationship({
+                ref: 'User'
+            }),
+            file: file()
+        },
+        access: {
+            filter: {
+                query: ({ session }) => {
+                    return { userid: { id: { equals: session.itemId } } }
+                },
+                update: ({ session }) => {
+                    return { userid: { id: { equals: session.itemId } } }
+                },
+                delete: ({ session }) => {
+                    return { userid: { id: { equals: session.itemId } } }
                 }
             }
         }
