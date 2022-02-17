@@ -37,7 +37,7 @@ import {
     FiEdit2 as EditIcon
 } from "react-icons/fi";
 
-import Layout from "../components/layout";
+import Layout from "../../components/layout";
 
 import {
     closestCenter,
@@ -59,6 +59,12 @@ import { CSS } from '@dnd-kit/utilities';
 
 import Animator, { Track } from 'animator';
 import { useEffect, useRef, useState } from "react";
+
+import GET_PROJECT_QUERY from '../../utils/queries/project';
+import UPDATE_NAME_MUTATION from '../../utils/queries/updateProjectName';
+
+import { useMutation, useQuery } from "@apollo/client";
+import { useRouter } from "next/router";
 
 function useTrack(name) {
     const [animations, setAnimations] = useState([]);
@@ -99,9 +105,18 @@ export default function Editor() {
 
     const [videoAnimations, pushVideoAnimation, reorderVideoAnimations] = useTrack('video');
 
+    const router = useRouter();
+    const { id } = router.query
+    const { loading, data } = useQuery(GET_PROJECT_QUERY, {variables: {id: id}, fetchPolicy: 'network-only'});
+    const [ updateName, {loading : loadingName} ] = useMutation(UPDATE_NAME_MUTATION);
+
     useEffect(() => {
         Animator.init(canvasRef.current, objWrapperRef.current);
     }, []);
+
+    const setName = (e) => {
+        updateName({variables: {id: id, name: e.target.value}});
+    }
 
     const handleFileUpload = (event, type='video') => {
         if (event.target.files && event.target.files.length > 0) {
@@ -192,9 +207,9 @@ export default function Editor() {
         <Layout title='Editor' subtitle='New Project' back='/dashboard'>
             <Container maxW='container.xl'>
                 <HStack bg='white' p={4} rounded={8} marginBottom={4}>
-                    <Input size='lg' placeholder='name'></Input>
+                    <Input size='lg' placeholder='name' defaultValue={data?.project.name} onChange={setName}></Input>
                     <Button size='lg'>Export</Button>
-                    <IconButton icon={<SaveIcon />} size='lg' variant='ghost' />
+                    <IconButton isLoading={loading||loadingName} icon={<SaveIcon />} size='lg' variant='ghost' />
                 </HStack>
                 <Stack w='full' direction={{ base: 'column', md: 'row' }}>
                     <VStack bg='white' p={4} rounded={8} flex='1'>
