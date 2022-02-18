@@ -141,13 +141,6 @@ type Project {
     skip: Int! = 0
   ): [TrackItem!]
   backgroundTrackCount(where: TrackItemWhereInput! = {}): Int
-  files(
-    where: FileWhereInput! = {}
-    orderBy: [FileOrderByInput!]! = []
-    take: Int
-    skip: Int! = 0
-  ): [File!]
-  filesCount(where: FileWhereInput! = {}): Int
 }
 
 input ProjectWhereUniqueInput {
@@ -162,19 +155,12 @@ input ProjectWhereInput {
   userid: UserWhereInput
   name: StringFilter
   backgroundTrack: TrackItemManyRelationFilter
-  files: FileManyRelationFilter
 }
 
 input TrackItemManyRelationFilter {
   every: TrackItemWhereInput
   some: TrackItemWhereInput
   none: TrackItemWhereInput
-}
-
-input FileManyRelationFilter {
-  every: FileWhereInput
-  some: FileWhereInput
-  none: FileWhereInput
 }
 
 input ProjectOrderByInput {
@@ -186,7 +172,6 @@ input ProjectUpdateInput {
   userid: UserRelateToOneForUpdateInput
   name: String
   backgroundTrack: TrackItemRelateToManyForUpdateInput
-  files: FileRelateToManyForUpdateInput
 }
 
 input UserRelateToOneForUpdateInput {
@@ -202,13 +187,6 @@ input TrackItemRelateToManyForUpdateInput {
   connect: [TrackItemWhereUniqueInput!]
 }
 
-input FileRelateToManyForUpdateInput {
-  disconnect: [FileWhereUniqueInput!]
-  set: [FileWhereUniqueInput!]
-  create: [FileCreateInput!]
-  connect: [FileWhereUniqueInput!]
-}
-
 input ProjectUpdateArgs {
   where: ProjectWhereUniqueInput!
   data: ProjectUpdateInput!
@@ -218,7 +196,6 @@ input ProjectCreateInput {
   userid: UserRelateToOneForCreateInput
   name: String
   backgroundTrack: TrackItemRelateToManyForCreateInput
-  files: FileRelateToManyForCreateInput
 }
 
 input UserRelateToOneForCreateInput {
@@ -229,11 +206,6 @@ input UserRelateToOneForCreateInput {
 input TrackItemRelateToManyForCreateInput {
   create: [TrackItemCreateInput!]
   connect: [TrackItemWhereUniqueInput!]
-}
-
-input FileRelateToManyForCreateInput {
-  create: [FileCreateInput!]
-  connect: [FileWhereUniqueInput!]
 }
 
 type TrackItem {
@@ -309,6 +281,7 @@ type File {
   id: ID!
   userid: User
   file: FileFieldOutput
+  type: String
 }
 
 interface FileFieldOutput {

@@ -37,7 +37,7 @@ export default withAuth(
       upload: 'local',
       local: {
         storagePath: 'public/files',
-        baseUrl: '/files',
+        baseUrl: 'http://localhost:3002/files',
       },
     },
     lists,

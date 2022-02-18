@@ -26,7 +26,8 @@ function MyApp({ Component, pageProps }) {
                 router.push('/login');
             }
         },
-        client: client
+        client: client,
+        fetchPolicy: 'network-only'
     });
 
     const isAllowed = () => {

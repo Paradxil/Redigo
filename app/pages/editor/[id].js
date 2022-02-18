@@ -19,7 +19,8 @@ import {
     MenuButton,
     MenuList,
     MenuItem,
-    Text
+    Text,
+    useDisclosure
 } from "@chakra-ui/react";
 
 import {
@@ -65,6 +66,7 @@ import UPDATE_NAME_MUTATION from '../../utils/queries/updateProjectName';
 
 import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
+import MediaSelect from "../../components/mediaSelect";
 
 function useTrack(name) {
     const [animations, setAnimations] = useState([]);
@@ -97,7 +99,10 @@ function useTrack(name) {
     ]
 }
 
-export default function Editor() {
+export default function Editor({ user }) {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [uploading, setUploading] = useState(false);
+
     const canvasRef = useRef(null);
     const objWrapperRef = useRef(null);
     const videoInputRef = useRef(null);
@@ -107,24 +112,36 @@ export default function Editor() {
 
     const router = useRouter();
     const { id } = router.query
-    const { loading, data } = useQuery(GET_PROJECT_QUERY, {variables: {id: id}, fetchPolicy: 'network-only'});
-    const [ updateName, {loading : loadingName} ] = useMutation(UPDATE_NAME_MUTATION);
+    const { loading, data } = useQuery(GET_PROJECT_QUERY, { variables: { id: id }, fetchPolicy: 'network-only' });
+    const [updateName, { loading: loadingName }] = useMutation(UPDATE_NAME_MUTATION);
 
     useEffect(() => {
         Animator.init(canvasRef.current, objWrapperRef.current);
     }, []);
 
     const setName = (e) => {
-        updateName({variables: {id: id, name: e.target.value}});
+        updateName({ variables: { id: id, name: e.target.value } });
     }
 
-    const handleFileUpload = (event, type='video') => {
+    const handleFileUpload = (event, type = 'video') => {
         if (event.target.files && event.target.files.length > 0) {
             var file = event.target.files[0];
             var src = URL.createObjectURL(file);
 
             pushVideoAnimation(type, file.name, { src: src }, 5000)
         }
+    }
+
+    const selectFile = (name, src, upload, type = 'video') => {
+        if(upload) {
+            return
+        }
+        pushVideoAnimation(type, name, { src: src }, 5000);
+    }
+
+    const updateTrackItem = (name, src, type = 'video') => {
+        setUploading(false);
+        pushVideoAnimation(type, name, { src: src }, 5000);
     }
 
     const VideoTrackItem = ({ name, id }) => {
@@ -209,7 +226,7 @@ export default function Editor() {
                 <HStack bg='white' p={4} rounded={8} marginBottom={4}>
                     <Input size='lg' placeholder='name' defaultValue={data?.project.name} onChange={setName}></Input>
                     <Button size='lg'>Export</Button>
-                    <IconButton isLoading={loading||loadingName} icon={<SaveIcon />} size='lg' variant='ghost' />
+                    <IconButton isLoading={loading || loadingName || uploading} icon={<SaveIcon />} size='lg' variant='ghost' />
                 </HStack>
                 <Stack w='full' direction={{ base: 'column', md: 'row' }}>
                     <VStack bg='white' p={4} rounded={8} flex='1'>
@@ -218,8 +235,8 @@ export default function Editor() {
                         </div>
                         <HStack>
                             <ButtonGroup isAttached>
-                                <IconButton icon={<PlayIcon />} />
-                                <IconButton icon={<PauseIcon />} />
+                                <IconButton icon={<PlayIcon />} onClick={()=>Animator.play()}/>
+                                <IconButton icon={<PauseIcon />} onClick={()=>Animator.pause()}/>
                             </ButtonGroup>
                             <ButtonGroup isAttached>
                                 <IconButton icon={<PhoneIcon />} />
@@ -232,13 +249,21 @@ export default function Editor() {
                         <Menu>
                             <MenuButton as={Button} leftIcon={<AddIcon />}>Add Media</MenuButton>
                             <MenuList>
-                                <MenuItem onClick={() => videoInputRef.current.click()} icon={<VideoIcon />}>Video</MenuItem>
+                                <MenuItem onClick={onOpen} icon={<VideoIcon />}>Video</MenuItem>
                                 <MenuItem onClick={() => imageInputRef.current.click()} icon={<ImageIcon />}>Image</MenuItem>
                                 <MenuItem icon={<BackgroundIcon />}>Solid Color</MenuItem>
                             </MenuList>
+                            <MediaSelect
+                                isOpen={isOpen}
+                                onClose={onClose}
+                                username={user.username}
+                                onFileSelect={selectFile}
+                                onUploadStarted={()=>setUploading(true)}
+                                onUploadCompleted={updateTrackItem}
+                            />
                         </Menu>
                         <Input type='file' ref={videoInputRef} id='video-input' hidden onChange={handleFileUpload} accept="video/*" />
-                        <Input type='file' ref={imageInputRef} id='image-input' hidden onChange={e=>handleFileUpload(e, 'image')} accept="image/*" />
+                        <Input type='file' ref={imageInputRef} id='image-input' hidden onChange={e => handleFileUpload(e, 'image')} accept="image/*" />
                         <VStack w='full' marginTop={4}>
                             <VideoTrack />
                         </VStack>

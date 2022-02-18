@@ -28,6 +28,7 @@ import {
     file,
     json,
     integer,
+    virtual,
 } from '@keystone-6/core/fields';
 // The document field is a more complicated field, so it's in its own package
 // Keystone aims to have all the base field types, but you can make your own
@@ -39,6 +40,9 @@ import { document } from '@keystone-6/fields-document';
 // our types to a stricter subset that is type-aware of other lists in our schema
 // that Typescript cannot easily infer.
 import { Lists } from '.keystone/types';
+import { graphql } from '@graphql-ts/schema';
+
+import mime from 'mime-types';
 
 const isAdmin = ({ session }: { session: Session }) => session?.data != null;
 
@@ -99,10 +103,6 @@ export const lists: Lists = {
             backgroundTrack: relationship({
                 ref: 'TrackItem.project',
                 many: true
-            }),
-            files: relationship({
-                ref: 'File',
-                many: true
             })
         },
         access: {
@@ -135,7 +135,15 @@ export const lists: Lists = {
             userid: relationship({
                 ref: 'User'
             }),
-            file: file()
+            file: file(),
+            type: virtual({
+                field: graphql.field({
+                    type: graphql.String,
+                    resolve: (item) => {
+                        return mime.lookup(item.file_filename)||null;
+                    }
+                })
+            })
         },
         access: {
             filter: {

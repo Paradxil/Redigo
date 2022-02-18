@@ -1,23 +1,36 @@
-import { Text, Heading, Box, Image, HStack, Button, Spinner } from "@chakra-ui/react";
+import { Text, Heading, Box, Image, VStack, Button, Spinner, Center, HStack, Container, ButtonGroup, IconButton, Checkbox } from "@chakra-ui/react";
 import Layout from "../components/layout";
 
-import { FiPlus as AddProjectIcon } from "react-icons/fi";
+import {
+    FiPlus as AddProjectIcon,
+    FiBookmark as ProjectIcon,
+    FiEdit2 as EditIcon,
+    FiDelete as DeleteIcon
+} from "react-icons/fi";
 
 import PROJECTS_QUERY from '../utils/queries/projects';
 import CREATE_PROJECT_MUTATION from '../utils/queries/createProject';
+import DElETE_PROJECT_MUTATION from '../utils/queries/deleteProject';
 
 import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import client from "../utils/client";
 
 export default function Dashboard(props) {
     const router = useRouter();
 
-    const { loading, error, data } = useQuery(PROJECTS_QUERY, {fetchPolicy: 'cache-and-network'});
+    const { loading, error, data } = useQuery(PROJECTS_QUERY, { fetchPolicy: 'cache-and-network' });
     const [createProject, { loading: loadingNewProject }] = useMutation(CREATE_PROJECT_MUTATION, {
         onCompleted: (d) => {
             console.log(d);
             router.push('/editor/' + d.createProject.id);
+        }
+    });
+
+    const [deleteProject, { loading: deletingProject }] = useMutation(DElETE_PROJECT_MUTATION, {
+        onCompleted: () => {
+            client.refetchQueries({include: [PROJECTS_QUERY]});
         }
     });
 
@@ -27,19 +40,29 @@ export default function Dashboard(props) {
 
     const ProjectCard = ({ name, image, id }) => {
         return (
-            <Link
-                href={`/editor/${id}`}
-            >
-                <Box background={'white'} shadow='md' rounded={8} padding={4} cursor='pointer'>
-                    <Image src={image}></Image>
-                    <Text>{name}</Text>
-                </Box>
-            </Link>
+            <HStack w='full' bg='white' padding={4} shadow='sm' rounded={8}>
+                <Checkbox />
+                {
+                    image ?
+                        <Image src={image}></Image>
+                        :
+                        <Center><ProjectIcon /></Center>
+                }
+                <Text flex={1}>{name}</Text>
+                <ButtonGroup isAttached={true}>
+                    <Link
+                        href={`/editor/${id}`}
+                    >
+                        <IconButton icon={<EditIcon />} />
+                    </Link>
+                    <IconButton onClick={() => deleteProject({variables: {id: id}})} icon={<DeleteIcon />} />
+                </ButtonGroup>
+            </HStack>
         )
     }
 
     const Projects = () => {
-        if (loading) {
+        if (loading&&!data) {
             return (
                 <Spinner />
             )
@@ -52,10 +75,12 @@ export default function Dashboard(props) {
 
     return (
         <Layout title='Dashboard' subtitle={props.user.username}>
-            <Button variant={'solid'} isLoading={loadingNewProject} colorScheme='blue' leftIcon={<AddProjectIcon />} onClick={newProject}>New Project</Button>
-            <HStack wrap='wrap' marginTop={4}>
-                <Projects />
-            </HStack>
+            <Container width='container.lg'>
+                <Button variant={'solid'} isLoading={loadingNewProject} colorScheme='blue' leftIcon={<AddProjectIcon />} onClick={newProject}>New Project</Button>
+                <VStack wrap='wrap' marginTop={4}>
+                    <Projects />
+                </VStack>
+            </Container>
         </Layout>
     )
 }

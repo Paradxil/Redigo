@@ -11,6 +11,14 @@ class Animator {
         this.wrapper = null;
     }
 
+    play() {
+        this.timeLine?.play();
+    }
+
+    pause() {
+        this.timeLine?.pause();
+    }
+
     init(canvas, wrapper) {
         if (canvas == null) {
             throw new Error('Canvas is not defined.')
@@ -71,9 +79,9 @@ class Animator {
                 this.timeLine = this.timeLine.add({
                     targets: factory.target(animation.name, animation.obj),
                     duration: animation.duration,
-                    begin: () => {animation.obj.el.style.display='block'},
-                    complete: () => { animation.obj.el.style.display = 'none'},
-                    update: () => { renderer != null ? renderer(this.ctx, animation.obj, animation, this.timeLine.currentTime) : ''; }
+                    begin: () => renderer?.begin?renderer.begin(animation.obj, this.ctx, this.canvas):null,
+                    complete: () => renderer?.complete?renderer.complete(animation.obj, this.ctx, this.canvas):null,
+                    update: () => renderer?.render?renderer.render(this.ctx, this.canvas, animation.obj, animation, this.timeLine.currentTime):null
                 })
             }
         }
@@ -89,7 +97,7 @@ class Animator {
     }
 
     createElement(factory, obj, id) {
-        let objEl = factory.create(obj);
+        let objEl = factory.create(obj, this.canvas);
         obj.el = objEl;
         obj.el.style.display = 'none';
 
@@ -136,50 +144,77 @@ export class Track {
 }
 
 // DEFAULT RENDERERS --------------------------------------------------
-const VideoRenderer = function (ctx, obj, timeLineFrame, currentTime) {
-    if (currentTime >= timeLineFrame.duration) {
-        if (!obj.el.paused) {
-            obj.el.pause();
-        }
-        return;
-    }
-
-    if (obj.el.paused && currentTime / 1000 < obj.el.duration) {
-        try {
-            obj.el.currentTime = currentTime / 1000;
+const VideoRenderer =  {
+    begin: function(obj) {
+        if (obj.el.paused) {
             obj.el.play();
         }
-        catch (err) {
-            console.log("Unable to play video.");
+    },
+    complete: (obj, ctx, canvas) => {
+        obj.el.pause();
+    },
+    render: function (ctx, canvas, obj, timeLineFrame, currentTime) {
+        // if (currentTime >= timeLineFrame.duration) {
+        //     if (!obj.el.paused) {
+        //         obj.el.pause();
+        //     }
+        //     return;
+        // }
+
+        // if (obj.el.paused && currentTime / 1000 < obj.el.duration) {
+        //     try {
+        //         obj.el.currentTime = currentTime / 1000;
+        //         obj.el.play();
+        //     }
+        //     catch (err) {
+        //         console.log("Unable to play video.");
+        //     }
+        // }
+
+        if(obj.el.paused) {
+            return;
         }
-    }
 
-    // Cover the canvas
-    let size = Math.min(obj.el.videoHeight, obj.el.videoWidth);
+        // Cover the canvas
+        let size = Math.min(obj.el.videoHeight, obj.el.videoWidth);
 
-    // Center the video
-    let sx = (obj.el.videoWidth - size) / 2;
-    let sy = (obj.el.videoHeight - size) / 2
+        // Center the video
+        let sx = (obj.el.videoWidth - size) / 2;
+        let sy = (obj.el.videoHeight - size) / 2
 
-    ctx.drawImage(obj.el, sx, sy, size, size, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(obj.el, sx, sy, size, size, 0, 0, canvas.width, canvas.height);
+    }   
 }
 
-const AudioRenderer = function (ctx, obj, timeLineFrame, currentTime) {
-    if (currentTime >= timeLineFrame.start + timeLineFrame.duration) {
-        if (!obj.el.paused) {
-            obj.el.pause();
+const AudioRenderer = {
+    render: function (ctx, canvas, obj, timeLineFrame, currentTime) {
+        if (currentTime >= timeLineFrame.start + timeLineFrame.duration) {
+            if (!obj.el.paused) {
+                obj.el.pause();
+            }
+            return;
         }
-        return;
-    }
 
-    if (obj.el.paused) {
-        try {
-            obj.el.currentTime = (currentTime - timeLineFrame.start) / 1000;
-            obj.el.play();
+        if (obj.el.paused) {
+            try {
+                obj.el.currentTime = (currentTime - timeLineFrame.start) / 1000;
+                obj.el.play();
+            }
+            catch (err) {
+                console.log("Unable to play audio.");
+            }
         }
-        catch (err) {
-            console.log("Unable to play audio.");
-        }
+    }
+} 
+
+const DefaultRenderer = {
+    begin: (obj, ctx, canvas) => {
+        obj.el.style.display = 'block';
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    },
+    complete: (obj) => {
+        obj.el.style.display = 'none';
     }
 }
 
@@ -217,10 +252,13 @@ const AudioFactory = {
 }
 
 const ImageFactory = {
-    create: (obj) => {
+    create: (obj, canvas) => {
         var imgEl = document.createElement("img");
         imgEl.classList.add('image');
         imgEl.src = obj.src;
+        imgEl.style.height = canvas.width + 'px';
+        imgEl.style.width = 'auto';
+        imgEl.style.maxWidth = 'unset';
         return imgEl;
     },
     target: (id, obj) => {
@@ -267,6 +305,7 @@ const ani = new Animator();
 
 ani.addRenderer('video', VideoRenderer);
 ani.addRenderer('audio', AudioRenderer);
+ani.addRenderer('image', DefaultRenderer);
 
 ani.addFactory('image', ImageFactory);
 ani.addFactory('video', VideoFactory);

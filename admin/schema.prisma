@@ -31,7 +31,6 @@ model Project {
   useridId        String?     @map("userid")
   name            String      @default("")
   backgroundTrack TrackItem[] @relation("TrackItem_project")
-  files           File[]      @relation("Project_files")
 
   @@index([useridId])
 }
@@ -48,13 +47,12 @@ model TrackItem {
 }
 
 model File {
-  id                 String    @id @default(cuid())
-  userid             User?     @relation("File_userid", fields: [useridId], references: [id])
-  useridId           String?   @map("userid")
-  file_filesize      Int?
-  file_mode          String?
-  file_filename      String?
-  from_Project_files Project[] @relation("Project_files")
+  id            String  @id @default(cuid())
+  userid        User?   @relation("File_userid", fields: [useridId], references: [id])
+  useridId      String? @map("userid")
+  file_filesize Int?
+  file_mode     String?
+  file_filename String?
 
   @@index([useridId])
 }
