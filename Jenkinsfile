@@ -5,10 +5,12 @@ pipeline {
       parallel {
         stage('Install Admin Deps') {
           steps {
-            nodejs '17'
-            sh '''cd admin
+            nodejs('17') {
+              sh '''cd admin
 npm -v
 npm i'''
+            }
+
           }
         }
 
