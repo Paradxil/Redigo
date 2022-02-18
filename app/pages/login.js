@@ -26,7 +26,7 @@ export default function Login() {
                 return true
             }
 
-            client.clearStore();
+            client.resetStore();
             document.cookie = "keystonejs-session=" + data.loginResult.sessionToken + ";";
             router.push('/dashboard');
         },
