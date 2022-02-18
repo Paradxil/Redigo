@@ -1,10 +1,22 @@
 pipeline {
   agent any
   stages {
-    stage('Install Admin Deps') {
-      steps {
-        sh '''cd admin
+    stage('Install Deps') {
+      parallel {
+        stage('Install Admin Deps') {
+          steps {
+            sh '''cd admin
 npm i'''
+          }
+        }
+
+        stage('Install App Deps') {
+          steps {
+            sh '''cd app
+npm i'''
+          }
+        }
+
       }
     }
 
