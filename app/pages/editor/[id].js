@@ -275,7 +275,7 @@ export default function Editor({ user }) {
                 p={2}
             >
                 <IconButton variant='ghost' {...listeners} icon={<DragIcon />} />
-                <Editable flex={1} defaultValue={name}>
+                <Editable flex={1} defaultValue={name} overflow='hidden'>
                     <EditablePreview />
                     <EditableInput padding={2} />
                 </Editable>
@@ -297,7 +297,6 @@ export default function Editor({ user }) {
             useSensor(TouchSensor, {
                 // Press delay of 250ms, with tolerance of 5px of movement
                 activationConstraint: {
-                    delay: 250,
                     tolerance: 5,
                 },
             })

@@ -75,7 +75,7 @@ export default function Dashboard(props) {
 
     return (
         <Layout title='Dashboard' subtitle={props.user.username}>
-            <Container width='container.lg'>
+            <Container maxW='container.lg'>
                 <Button variant={'solid'} isLoading={loadingNewProject} colorScheme='blue' leftIcon={<AddProjectIcon />} onClick={newProject}>New Project</Button>
                 <VStack wrap='wrap' marginTop={4}>
                     <Projects />

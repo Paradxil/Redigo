@@ -44,6 +44,7 @@ export default function Layout({ children, title, subtitle, back }) {
         <>
             <Head>
                 <title>{title} | Redigo</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
             </Head>
             <Box w='full' minH='100vh' background='gray.100'>
                 <HStack padding={4} background='white' boxShadow='sm'>
@@ -60,7 +61,7 @@ export default function Layout({ children, title, subtitle, back }) {
                     </HStack>
                     <UserMenu />
                 </HStack>
-                <Box padding={4}>
+                <Box padding={{base: 1, lg: 4}}>
                     {children}
                 </Box>
             </Box>
