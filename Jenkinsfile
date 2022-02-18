@@ -1,16 +1,12 @@
 pipeline {
-  agent {
-    node {
-      label '17'
-    }
-
-  }
+  agent any
   stages {
     stage('Install Deps') {
       parallel {
         stage('Install Admin Deps') {
           steps {
             sh '''cd admin
+nvm use 16
 npm i'''
           }
         }
