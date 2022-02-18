@@ -6,7 +6,6 @@ pipeline {
         stage('Install Admin Deps') {
           steps {
             sh '''cd admin
-nvm use 16
 npm i'''
           }
         }
