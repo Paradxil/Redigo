@@ -1,25 +1,17 @@
 import {
     Input,
     Box,
-    Flex,
     HStack,
     Stack,
-    Spacer,
     Button,
     IconButton,
-    Center,
     VStack,
     ButtonGroup,
-    Slider,
-    SliderTrack,
-    SliderFilledTrack,
-    SliderThumb,
     Container,
     Menu,
     MenuButton,
     MenuList,
     MenuItem,
-    Text,
     useDisclosure,
     Editable,
     EditablePreview,
@@ -88,7 +80,7 @@ function useAnimator(canvas, objWrapper) {
     }
 
     const setInitialTrackItems = (items) => {
-        for(let data of items) {
+        for(let data of items||[]) {
             //id, name, type, data, duration, file
             let item = new TrackItem(data.id, data.name, data.type, data.data, data.duration, data.file.file.url);
             setTrackItem(item);
@@ -120,8 +112,8 @@ function useAnimator(canvas, objWrapper) {
         }
 
         const setInitialTrack = (t) => {
-            setTrack([...t]);
-            animator.setTrack(name, t);
+            setTrack([...(t||[])]);
+            animator.setTrack(name, t||[]);
             animator.update();
         }
 
