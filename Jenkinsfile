@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    node {
+      label '17'
+    }
+
+  }
   stages {
     stage('Install Deps') {
       parallel {
