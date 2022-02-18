@@ -2,6 +2,7 @@ import anime from 'animejs/lib/anime.es.js';
 
 class Animator {
     constructor() {
+        this.trackItems = {};
         this.tracks = {};
         this.renderers = {};
         this.factories = {};
@@ -44,14 +45,24 @@ class Animator {
 
         this.ctx.fillStyle = "#212529";
         this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        this.timeLine = anime.timeline();
     }
 
-    addTrack(name, track) {
+    setTrack(name, track) {
         this.tracks[name] = track;
     }
 
     getTrack(name) {
         return this.tracks[name] || null;
+    }
+
+    setTrackItem(item) {
+        this.trackItems[item.id] = item;
+    }
+
+    getTrackItem(id) {
+        return this.trackItems[id];
     }
 
     addRenderer(name, renderer) {
@@ -65,23 +76,31 @@ class Animator {
     animate() {
         for (let trackID in this.tracks) {
             let track = this.tracks[trackID];
-            for (let animation of track.animations) {
-                let factory = this.factories[animation.type];
+            for (let trackItemID of track) {
+                let trackItem = this.trackItems[trackItemID];
+
+                if(!trackItem) {
+                    console.log("Unable to find track item with id: " + trackItemID);
+                    continue;
+                }
+
+                let factory = this.factories[trackItem.type];
 
                 if(!factory) {
+                    console.log("Unable to find factory for type: " + trackItemID.type);
                     continue
                 }
 
-                let renderer = this.renderers[animation.type];
+                let renderer = this.renderers[trackItem.type];
 
-                this.createElement(factory, animation.obj, animation.name);
+                this.createElement(factory, trackItem);
 
                 this.timeLine = this.timeLine.add({
-                    targets: factory.target(animation.name, animation.obj),
-                    duration: animation.duration,
-                    begin: () => renderer?.begin?renderer.begin(animation.obj, this.ctx, this.canvas):null,
-                    complete: () => renderer?.complete?renderer.complete(animation.obj, this.ctx, this.canvas):null,
-                    update: () => renderer?.render?renderer.render(this.ctx, this.canvas, animation.obj, animation, this.timeLine.currentTime):null
+                    targets: factory.target(trackItem),
+                    duration: trackItem.duration,
+                    begin: () => renderer?.begin?renderer.begin(trackItem, this.ctx, this.canvas):null,
+                    complete: () => renderer?.complete ? renderer.complete(trackItem, this.ctx, this.canvas):null,
+                    update: () => renderer?.render ? renderer.render(trackItem, this.ctx, this.canvas):null
                 })
             }
         }
@@ -96,13 +115,13 @@ class Animator {
         this.animate();
     }
 
-    createElement(factory, obj, id) {
-        let objEl = factory.create(obj, this.canvas);
-        obj.el = objEl;
-        obj.el.style.display = 'none';
+    createElement(factory, trackItem) {
+        let objEl = factory.create(trackItem, this.canvas);
+        objEl.style.display = 'none';
+        trackItem.setEl(objEl);
 
         let objWrapper = document.createElement("div");
-        objWrapper.id = id;
+        objWrapper.id = trackItem.id;
         objWrapper.classList.add("object-wrapper");
         objWrapper.style.position = 'absolute';
         objWrapper.style.top = '0px';
@@ -116,89 +135,96 @@ class Animator {
     }
 }
 
-export class Track {
-    constructor() {
-        this.animations = [];
+export class TrackItem {
+    constructor(id, name, type, data, duration, file) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.data = data;
+        this.duration = duration;
+        this.file = file;
+        this.el = null;
     }
 
-    pushAnimation(type, name, obj, duration) {
-        this.animations.push({
-            name: name,
-            type: type,
-            obj: obj,
-            duration: duration
-        });
+    setEl(el) {
+        this.el = el;
     }
 
-    removeAnimation(index) {
-        this.animations.splice(index, 1);
+    getEl() {
+        return this.el;
     }
 
-    getAnimations() {
-        return this.animations;
-    }
-
-    setAnimations(animations) {
-        this.animations = animations;
+    getData() {
+        return this.data;
     }
 }
 
+// export class Track {
+//     constructor() {
+//         this.animations = [];
+//     }
+
+//     pushAnimation(type, name, obj, duration) {
+//         this.animations.push({
+//             name: name,
+//             type: type,
+//             obj: obj,
+//             duration: duration
+//         });
+//     }
+
+//     removeAnimation(index) {
+//         this.animations.splice(index, 1);
+//     }
+
+//     getAnimations() {
+//         return this.animations;
+//     }
+
+//     setAnimations(animations) {
+//         this.animations = animations;
+//     }
+// }
+
 // DEFAULT RENDERERS --------------------------------------------------
 const VideoRenderer =  {
-    begin: function(obj) {
-        if (obj.el.paused) {
-            obj.el.play();
+    begin: function(item) {
+        if (item.getEl().paused) {
+            item.getEl().play();
         }
     },
-    complete: (obj, ctx, canvas) => {
-        obj.el.pause();
+    complete: (item) => {
+        item.getEl().pause();
     },
-    render: function (ctx, canvas, obj, timeLineFrame, currentTime) {
-        // if (currentTime >= timeLineFrame.duration) {
+    render: function (item, ctx, canvas) {
+        if(item.getEl().paused) {
+            return;
+        }
+
+        // Cover the canvas
+        let size = Math.min(item.getEl().videoHeight, item.getEl().videoWidth);
+
+        // Center the video
+        let sx = (item.getEl().videoWidth - size) / 2;
+        let sy = (item.getEl().videoHeight - size) / 2
+
+        ctx.drawImage(item.getEl(), sx, sy, size, size, 0, 0, canvas.width, canvas.height);
+    }   
+}
+
+const AudioRenderer = {
+    render: function (item, ctx, canvas) {
+        // if (currentTime >= timeLineFrame.start + timeLineFrame.duration) {
         //     if (!obj.el.paused) {
         //         obj.el.pause();
         //     }
         //     return;
         // }
 
-        // if (obj.el.paused && currentTime / 1000 < obj.el.duration) {
-        //     try {
-        //         obj.el.currentTime = currentTime / 1000;
-        //         obj.el.play();
-        //     }
-        //     catch (err) {
-        //         console.log("Unable to play video.");
-        //     }
-        // }
-
-        if(obj.el.paused) {
-            return;
-        }
-
-        // Cover the canvas
-        let size = Math.min(obj.el.videoHeight, obj.el.videoWidth);
-
-        // Center the video
-        let sx = (obj.el.videoWidth - size) / 2;
-        let sy = (obj.el.videoHeight - size) / 2
-
-        ctx.drawImage(obj.el, sx, sy, size, size, 0, 0, canvas.width, canvas.height);
-    }   
-}
-
-const AudioRenderer = {
-    render: function (ctx, canvas, obj, timeLineFrame, currentTime) {
-        if (currentTime >= timeLineFrame.start + timeLineFrame.duration) {
-            if (!obj.el.paused) {
-                obj.el.pause();
-            }
-            return;
-        }
-
-        if (obj.el.paused) {
+        if (item.getEl().paused) {
             try {
-                obj.el.currentTime = (currentTime - timeLineFrame.start) / 1000;
-                obj.el.play();
+                //item.getEl().currentTime = (currentTime - timeLineFrame.start) / 1000;
+                item.getEl().play();
             }
             catch (err) {
                 console.log("Unable to play audio.");
@@ -208,13 +234,13 @@ const AudioRenderer = {
 } 
 
 const DefaultRenderer = {
-    begin: (obj, ctx, canvas) => {
-        obj.el.style.display = 'block';
+    begin: (item, ctx, canvas) => {
+        item.getEl().style.display = 'block';
         ctx.fillStyle = "#000000";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     },
-    complete: (obj) => {
-        obj.el.style.display = 'none';
+    complete: (item) => {
+        item.getEl().style.display = 'none';
     }
 }
 
@@ -222,52 +248,52 @@ const DefaultRenderer = {
 // DEFAULT FACTORIES ----------------------------------------------------
 
 const VideoFactory = {
-    create: (obj) => {
+    create: (item) => {
         let videoEl = document.createElement("video");
         videoEl.classList.add('video');
         videoEl.style.display = 'none';
         videoEl.preload = 'auto';
-        videoEl.src = obj.src;
+        videoEl.src = item.file;
         videoEl.load();
 
         return videoEl;
     },
-    target: (id, obj) => {
-        return obj;
+    target: (item) => {
+        return item;
     }
 }
 
 const AudioFactory = {
-    create: (obj) => {
+    create: (item) => {
         var audioEl = document.createElement("AUDIO");
-        audioEl.src = obj.src;
+        audioEl.src = item.file.url;
         audioEl.preload = 'auto';
         audioEl.load();
 
         return audioEl;
     },
-    target: (id, obj) => {
-        return obj;
+    target: (item) => {
+        return item;
     }
 }
 
 const ImageFactory = {
-    create: (obj, canvas) => {
+    create: (item, canvas) => {
         var imgEl = document.createElement("img");
         imgEl.classList.add('image');
-        imgEl.src = obj.src;
+        imgEl.src = item.file.url;
         imgEl.style.height = canvas.width + 'px';
         imgEl.style.width = 'auto';
         imgEl.style.maxWidth = 'unset';
         return imgEl;
     },
-    target: (id, obj) => {
-        return "#" + id;
+    target: (item) => {
+        return "#" + item.id;
     }
 }
 
 const TextFactory = {
-    create: (obj) => {
+    create: (item) => {
         let textElWrapper = document.createElement("div");
         textElWrapper.classList.add("text-wrapper")
 
@@ -296,20 +322,22 @@ const TextFactory = {
 
         return textElWrapper;
     },
-    target: (id, obj) => {
-        return "#" + id + " span";
+    target: (item) => {
+        return "#" + item.id + " span";
     }
 }
 
-const ani = new Animator();
+export default () => {
+    let ani = new Animator();
 
-ani.addRenderer('video', VideoRenderer);
-ani.addRenderer('audio', AudioRenderer);
-ani.addRenderer('image', DefaultRenderer);
+    ani.addRenderer('video', VideoRenderer);
+    ani.addRenderer('audio', AudioRenderer);
+    ani.addRenderer('image', DefaultRenderer);
 
-ani.addFactory('image', ImageFactory);
-ani.addFactory('video', VideoFactory);
-ani.addFactory('audio', AudioFactory);
-ani.addFactory('text', TextFactory);
+    ani.addFactory('image', ImageFactory);
+    ani.addFactory('video', VideoFactory);
+    ani.addFactory('audio', AudioFactory);
+    ani.addFactory('text', TextFactory);
 
-export default ani;
+    return ani;
+};

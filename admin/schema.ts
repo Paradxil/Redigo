@@ -100,10 +100,11 @@ export const lists: Lists = {
                 ref: 'User'
             }),
             name: text(),
-            backgroundTrack: relationship({
+            trackItems: relationship({
                 ref: 'TrackItem.project',
                 many: true
-            })
+            }),
+            track: json()
         },
         access: {
             filter: {
@@ -123,11 +124,21 @@ export const lists: Lists = {
         fields: {
             name: text(),
             project: relationship({
-                ref: 'Project.backgroundTrack',
+                ref: 'Project.trackItems',
                 many: false
             }),
             duration: integer(),
-            data: json()
+            file: relationship({
+                ref: 'File'
+            }),
+            data: json(),
+            type: select({
+                validation: {
+                    isRequired: true
+                },
+                options: ['video', 'image'],
+                defaultValue: 'video'
+            })
         }
     }),
     File: list({

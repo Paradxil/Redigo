@@ -20,7 +20,10 @@ import {
     MenuList,
     MenuItem,
     Text,
-    useDisclosure
+    useDisclosure,
+    Editable,
+    EditablePreview,
+    EditableInput
 } from "@chakra-ui/react";
 
 import {
@@ -58,48 +61,113 @@ import {
 
 import { CSS } from '@dnd-kit/utilities';
 
-import Animator, { Track } from 'animator';
+import createAnimator, { TrackItem } from 'animator';
 import { useEffect, useRef, useState } from "react";
 
 import GET_PROJECT_QUERY from '../../utils/queries/project';
 import UPDATE_NAME_MUTATION from '../../utils/queries/updateProjectName';
+import CREATE_TRACK_ITEM_MUTATION from '../../utils/queries/createTrackItem';
+import UPDATE_PROJECT_TRACK_MUTATION from '../../utils/queries/updateProjectTrack';
 
 import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import MediaSelect from "../../components/mediaSelect";
 
-function useTrack(name) {
-    const [animations, setAnimations] = useState([]);
+function useAnimator(canvas, objWrapper) {
+    const [animator] = useState(createAnimator());
+    const [trackItems, setTrackItems] = useState({});
 
     useEffect(() => {
-        Animator.addTrack(name, new Track());
-    }, [])
+        animator.init(canvas.current, objWrapper.current);
+    }, []);
 
-    const pushAnimation = (type, n, obj, duration) => {
-        Animator.getTrack(name).pushAnimation(type, n, obj, duration);
-        setAnimations([...Animator.getTrack(name).getAnimations()]);
-        Animator.update();
+    const setTrackItem = (item) => {
+        trackItems[item.id] = item;
+        setTrackItems({ ...trackItems });
+        animator.setTrackItem(item);
     }
 
-    const reorderAnimations = (name1, name2) => {
-        let oldIndex = animations.findIndex(el => el.name === name1);
-        let newIndex = animations.findIndex(el => el.name === name2);
-
-        let tmpAnimations = arrayMove(animations, oldIndex, newIndex);
-
-        setAnimations([...tmpAnimations]);
-        Animator.getTrack(name).setAnimations(tmpAnimations);
-        Animator.update();
+    const setInitialTrackItems = (items) => {
+        for(let data of items) {
+            //id, name, type, data, duration, file
+            let item = new TrackItem(data.id, data.name, data.type, data.data, data.duration, data.file.file.url);
+            setTrackItem(item);
+        }
     }
 
-    return [
-        animations,
-        pushAnimation,
-        reorderAnimations
-    ]
+    const getTrackItem = (id) => {
+        animator.getTrackItem(id);
+    }
+
+    const play = () => {
+        animator.play();
+    }
+
+    const pause = () => {
+        animator.pause();
+    }
+
+    const useTrack = (name, projectid) => {
+        const [updateTrack, { loading }] = useMutation(UPDATE_PROJECT_TRACK_MUTATION);
+        const [track, setTrack] = useState([]);
+
+        useEffect(() => {
+            animator.setTrack(name, track);
+        }, []);
+
+        const sendTrackUpdates = (t) => {
+            updateTrack({ variables: { id: projectid, track: t } });
+        }
+
+        const setInitialTrack = (t) => {
+            setTrack([...t]);
+            animator.setTrack(name, t);
+            animator.update();
+        }
+
+        const pushTrackItem = (id) => {
+            track.push(id);
+            setTrack([...track]);
+            animator.setTrack(name, track);
+            animator.update();
+            sendTrackUpdates(track);
+        }
+
+        const reorderTrackItems = (id1, id2) => {
+            let oldIndex = track.findIndex(id => id === id1);
+            let newIndex = track.findIndex(id => id === id2);
+
+            let tmpTrack = arrayMove(track, oldIndex, newIndex);
+            setTrack([...tmpTrack]);
+            animator.setTrack(name, tmpTrack);
+            animator.update();
+            sendTrackUpdates(tmpTrack);
+        }
+
+        return {
+            setInitialTrack,
+            reorderTrackItems,
+            pushTrackItem,
+            track,
+            loading,
+            play,
+            pause
+        }
+    }
+
+    return {
+        setTrackItem,
+        setInitialTrackItems,
+        getTrackItem,
+        trackItems,
+        useTrack,
+    }
 }
 
 export default function Editor({ user }) {
+    const router = useRouter();
+    const { id: projectid } = router.query;
+
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [uploading, setUploading] = useState(false);
 
@@ -108,19 +176,36 @@ export default function Editor({ user }) {
     const videoInputRef = useRef(null);
     const imageInputRef = useRef(null);
 
-    const [videoAnimations, pushVideoAnimation, reorderVideoAnimations] = useTrack('video');
+    const {
+        setTrackItem,
+        setInitialTrackItems,
+        trackItems,
+        useTrack,
+        play,
+        pause
+    } = useAnimator(canvasRef, objWrapperRef);
 
-    const router = useRouter();
-    const { id } = router.query
-    const { loading, data } = useQuery(GET_PROJECT_QUERY, { variables: { id: id }, fetchPolicy: 'network-only' });
+    const {
+        track: videoTrack,
+        setInitialTrack,
+        pushTrackItem,
+        reorderTrackItems,
+        loading: loadingTrack
+    } = useTrack('video', projectid);
+
+    const { loading, data } = useQuery(GET_PROJECT_QUERY, {
+        variables: { id: projectid }, 
+        fetchPolicy: 'network-only',
+        onCompleted: (d) => {
+            setInitialTrackItems(d.project.trackItems);
+            setInitialTrack(d.project.track);
+        }
+    });
     const [updateName, { loading: loadingName }] = useMutation(UPDATE_NAME_MUTATION);
-
-    useEffect(() => {
-        Animator.init(canvasRef.current, objWrapperRef.current);
-    }, []);
+    const [createTrackItem, { loading: creatingItem }] = useMutation(CREATE_TRACK_ITEM_MUTATION);
 
     const setName = (e) => {
-        updateName({ variables: { id: id, name: e.target.value } });
+        updateName({ variables: { id: projectid, name: e.target.value } });
     }
 
     const handleFileUpload = (event, type = 'video') => {
@@ -128,20 +213,47 @@ export default function Editor({ user }) {
             var file = event.target.files[0];
             var src = URL.createObjectURL(file);
 
-            pushVideoAnimation(type, file.name, { src: src }, 5000)
+            //pushVideoAnimation(type, file.name, { src: src }, 5000)
         }
     }
 
-    const selectFile = (name, src, upload, type = 'video') => {
-        if(upload) {
+    const selectFile = (file, upload, type = 'video') => {
+        if (upload) {
             return
         }
-        pushVideoAnimation(type, name, { src: src }, 5000);
+
+        createTrackItem({
+            variables: {
+                projectid: projectid,
+                name: file.file.filename,
+                file: file.id,
+                duration: 5000
+            },
+            onCompleted: (d) => {
+                let itemData = d.createTrackItem;
+                let item = new TrackItem(itemData.id, itemData.name, type, itemData.data, itemData.duration, itemData.file.file.url);
+                setTrackItem(item);
+                pushTrackItem(item.id);
+            }
+        });
     }
 
-    const updateTrackItem = (name, src, type = 'video') => {
+    const updateTrackItem = (file, type = 'video') => {
+        createTrackItem({
+            variables: {
+                projectid: projectid,
+                name: file.file.filename,
+                file: file.id,
+                duration: 5000
+            },
+            onCompleted: (d) => {
+                let itemData = d.createTrackItem;
+                let item = new TrackItem(itemData.id, itemData.name, type, itemData.data, itemData.duration, itemData.file.file.url);
+                setTrackItem(item);
+                pushTrackItem(item.id);
+            }
+        });
         setUploading(false);
-        pushVideoAnimation(type, name, { src: src }, 5000);
     }
 
     const VideoTrackItem = ({ name, id }) => {
@@ -171,7 +283,10 @@ export default function Editor({ user }) {
                 p={2}
             >
                 <IconButton variant='ghost' {...listeners} icon={<DragIcon />} />
-                <Text flex='1'>{name}</Text>
+                <Editable flex={1} defaultValue={name}>
+                    <EditablePreview />
+                    <EditableInput padding={2} />
+                </Editable>
                 <ButtonGroup>
                     <IconButton variant='ghost' icon={<EditIcon />} />
                 </ButtonGroup>
@@ -200,7 +315,7 @@ export default function Editor({ user }) {
             const { active, over } = event;
 
             if (active.id !== over.id) {
-                reorderVideoAnimations(active.id, over.id);
+                reorderTrackItems(active.id, over.id);
             }
         }
 
@@ -211,10 +326,13 @@ export default function Editor({ user }) {
                 onDragEnd={handleDragEnd}
             >
                 <SortableContext
-                    items={videoAnimations.map(el => el.name)}
+                    items={videoTrack.map(id => id)}
                     strategy={verticalListSortingStrategy}
                 >
-                    {videoAnimations.map(el => <VideoTrackItem key={el.name} id={el.name} name={el.name} />)}
+                    {videoTrack.map(id => {
+                        let item = trackItems[id];
+                        return <VideoTrackItem key={item.id} id={item.id} name={item.name} />
+                    })}
                 </SortableContext>
             </DndContext>
         )
@@ -226,7 +344,7 @@ export default function Editor({ user }) {
                 <HStack bg='white' p={4} rounded={8} marginBottom={4}>
                     <Input size='lg' placeholder='name' defaultValue={data?.project.name} onChange={setName}></Input>
                     <Button size='lg'>Export</Button>
-                    <IconButton isLoading={loading || loadingName || uploading} icon={<SaveIcon />} size='lg' variant='ghost' />
+                    <IconButton isLoading={loading || loadingName || uploading || creatingItem || loadingTrack} icon={<SaveIcon />} size='lg' variant='ghost' />
                 </HStack>
                 <Stack w='full' direction={{ base: 'column', md: 'row' }}>
                     <VStack bg='white' p={4} rounded={8} flex='1'>
@@ -235,8 +353,8 @@ export default function Editor({ user }) {
                         </div>
                         <HStack>
                             <ButtonGroup isAttached>
-                                <IconButton icon={<PlayIcon />} onClick={()=>Animator.play()}/>
-                                <IconButton icon={<PauseIcon />} onClick={()=>Animator.pause()}/>
+                                <IconButton icon={<PlayIcon />} onClick={play} />
+                                <IconButton icon={<PauseIcon />} onClick={pause} />
                             </ButtonGroup>
                             <ButtonGroup isAttached>
                                 <IconButton icon={<PhoneIcon />} />
@@ -247,7 +365,7 @@ export default function Editor({ user }) {
                     </VStack>
                     <Box p={4} flex='1'>
                         <Menu>
-                            <MenuButton as={Button} leftIcon={<AddIcon />}>Add Media</MenuButton>
+                            <MenuButton as={Button} leftIcon={<AddIcon />} disabled={loading}>Add Media</MenuButton>
                             <MenuList>
                                 <MenuItem onClick={onOpen} icon={<VideoIcon />}>Video</MenuItem>
                                 <MenuItem onClick={() => imageInputRef.current.click()} icon={<ImageIcon />}>Image</MenuItem>
@@ -258,7 +376,7 @@ export default function Editor({ user }) {
                                 onClose={onClose}
                                 username={user.username}
                                 onFileSelect={selectFile}
-                                onUploadStarted={()=>setUploading(true)}
+                                onUploadStarted={() => setUploading(true)}
                                 onUploadCompleted={updateTrackItem}
                             />
                         </Menu>

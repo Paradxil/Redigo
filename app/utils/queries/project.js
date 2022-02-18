@@ -4,11 +4,20 @@ export default gpl`
 query getProject($id: ID) {
     project(where:{id:$id}) {
         name
-        backgroundTrack {
+        trackItems {
+            id
             name
             duration
+            file {
+                id
+                file {
+                    url
+                }
+            }
             data
+            type
         }
+        track
     }
 }
 `

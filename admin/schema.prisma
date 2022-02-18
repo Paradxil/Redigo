@@ -26,11 +26,12 @@ model FormSubmission {
 }
 
 model Project {
-  id              String      @id @default(cuid())
-  userid          User?       @relation("Project_userid", fields: [useridId], references: [id])
-  useridId        String?     @map("userid")
-  name            String      @default("")
-  backgroundTrack TrackItem[] @relation("TrackItem_project")
+  id         String      @id @default(cuid())
+  userid     User?       @relation("Project_userid", fields: [useridId], references: [id])
+  useridId   String?     @map("userid")
+  name       String      @default("")
+  trackItems TrackItem[] @relation("TrackItem_project")
+  track      String?
 
   @@index([useridId])
 }
@@ -41,18 +42,23 @@ model TrackItem {
   project   Project? @relation("TrackItem_project", fields: [projectId], references: [id])
   projectId String?  @map("project")
   duration  Int?
+  file      File?    @relation("TrackItem_file", fields: [fileId], references: [id])
+  fileId    String?  @map("file")
   data      String?
+  type      String   @default("video")
 
   @@index([projectId])
+  @@index([fileId])
 }
 
 model File {
-  id            String  @id @default(cuid())
-  userid        User?   @relation("File_userid", fields: [useridId], references: [id])
-  useridId      String? @map("userid")
-  file_filesize Int?
-  file_mode     String?
-  file_filename String?
+  id                  String      @id @default(cuid())
+  userid              User?       @relation("File_userid", fields: [useridId], references: [id])
+  useridId            String?     @map("userid")
+  file_filesize       Int?
+  file_mode           String?
+  file_filename       String?
+  from_TrackItem_file TrackItem[] @relation("TrackItem_file")
 
   @@index([useridId])
 }

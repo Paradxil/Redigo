@@ -134,13 +134,14 @@ type Project {
   id: ID!
   userid: User
   name: String
-  backgroundTrack(
+  trackItems(
     where: TrackItemWhereInput! = {}
     orderBy: [TrackItemOrderByInput!]! = []
     take: Int
     skip: Int! = 0
   ): [TrackItem!]
-  backgroundTrackCount(where: TrackItemWhereInput! = {}): Int
+  trackItemsCount(where: TrackItemWhereInput! = {}): Int
+  track: JSON
 }
 
 input ProjectWhereUniqueInput {
@@ -154,7 +155,7 @@ input ProjectWhereInput {
   id: IDFilter
   userid: UserWhereInput
   name: StringFilter
-  backgroundTrack: TrackItemManyRelationFilter
+  trackItems: TrackItemManyRelationFilter
 }
 
 input TrackItemManyRelationFilter {
@@ -171,7 +172,8 @@ input ProjectOrderByInput {
 input ProjectUpdateInput {
   userid: UserRelateToOneForUpdateInput
   name: String
-  backgroundTrack: TrackItemRelateToManyForUpdateInput
+  trackItems: TrackItemRelateToManyForUpdateInput
+  track: JSON
 }
 
 input UserRelateToOneForUpdateInput {
@@ -195,7 +197,8 @@ input ProjectUpdateArgs {
 input ProjectCreateInput {
   userid: UserRelateToOneForCreateInput
   name: String
-  backgroundTrack: TrackItemRelateToManyForCreateInput
+  trackItems: TrackItemRelateToManyForCreateInput
+  track: JSON
 }
 
 input UserRelateToOneForCreateInput {
@@ -213,7 +216,9 @@ type TrackItem {
   name: String
   project: Project
   duration: Int
+  file: File
   data: JSON
+  type: String
 }
 
 input TrackItemWhereUniqueInput {
@@ -228,6 +233,8 @@ input TrackItemWhereInput {
   name: StringFilter
   project: ProjectWhereInput
   duration: IntNullableFilter
+  file: FileWhereInput
+  type: StringFilter
 }
 
 input IntNullableFilter {
@@ -245,18 +252,27 @@ input TrackItemOrderByInput {
   id: OrderDirection
   name: OrderDirection
   duration: OrderDirection
+  type: OrderDirection
 }
 
 input TrackItemUpdateInput {
   name: String
   project: ProjectRelateToOneForUpdateInput
   duration: Int
+  file: FileRelateToOneForUpdateInput
   data: JSON
+  type: String
 }
 
 input ProjectRelateToOneForUpdateInput {
   create: ProjectCreateInput
   connect: ProjectWhereUniqueInput
+  disconnect: Boolean
+}
+
+input FileRelateToOneForUpdateInput {
+  create: FileCreateInput
+  connect: FileWhereUniqueInput
   disconnect: Boolean
 }
 
@@ -269,12 +285,19 @@ input TrackItemCreateInput {
   name: String
   project: ProjectRelateToOneForCreateInput
   duration: Int
+  file: FileRelateToOneForCreateInput
   data: JSON
+  type: String
 }
 
 input ProjectRelateToOneForCreateInput {
   create: ProjectCreateInput
   connect: ProjectWhereUniqueInput
+}
+
+input FileRelateToOneForCreateInput {
+  create: FileCreateInput
+  connect: FileWhereUniqueInput
 }
 
 type File {
