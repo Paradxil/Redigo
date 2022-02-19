@@ -27,6 +27,7 @@ export default withAuth(
     db: {
       provider: process.env.DB_PROVIDER||'sqlite',
       url: process.env.DB_URL ||'file:./keystone.db',
+      useMigrations: true
     },
     // This config allows us to set up features of the Admin UI https://keystonejs.com/docs/apis/config#ui
     ui: {
