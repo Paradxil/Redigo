@@ -38,6 +38,8 @@ jobs:
           npm install
         
       - name: Build
+        env: 
+          NEXT_PUBLIC_GRAPHQL_API_URL: https://admin.redigo.hunterstratton.com/api/graphql
         run: |
           cd app
           npm run build
