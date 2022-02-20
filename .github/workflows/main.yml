@@ -36,6 +36,11 @@ jobs:
         run: |
           cd app
           npm install
+          
+      - name: Cache
+        uses: actions/cache@v2.1.7
+        with:
+          path: app/next
         
       - name: Build
         env: 
