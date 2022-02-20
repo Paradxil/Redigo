@@ -48,6 +48,6 @@ jobs:
           host: hunterstratton.com
           username: hunter
           source: app
-          target: redigoapp
+          target: redigo/Redigo
           key: ${{ secrets.KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
