@@ -41,3 +41,11 @@ jobs:
         run: |
           cd app
           npm run build
+      
+      - name: Deploy
+        uses: appleboy/scp-action@v0.0.1
+        with:
+          host: 'hunterstratton.com'
+          username: 'hunter'
+          source: 'build'
+          target: 'redigo-app'
