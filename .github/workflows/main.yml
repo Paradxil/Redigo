@@ -33,7 +33,11 @@ jobs:
           cache-dependency-path: app/package-lock.json
           
       - name: Install Dependencies
-        run: npm install
+        run: |
+          cd app
+          npm install
         
       - name: Build
-        run: npm run build
+        run: |
+          cd app
+          npm run build
