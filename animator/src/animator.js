@@ -144,13 +144,24 @@ class Animator {
     }
 
     update() {
+        let autoplay = !this.timeLine.paused;
+
+        // Clean up timeline
+        this.timeLine.pause();
+        delete this.timeLine;
+
+        // Clean up DOM elements
         while(this.objectsWrapper.firstChild) {
             this.objectsWrapper.removeChild(this.objectsWrapper.firstChild);
         }
+
+        // Create new timeline
         this.timeLine = anime.timeline({
-            autoplay: !this.timeLine.paused,
+            autoplay: autoplay,
             complete: this.completeCallback
         });
+
+        // Rebuild timeline and DOM elements.
         this.animate();
     }
 
