@@ -51,7 +51,7 @@ export default function VideoTrackItem({ name, id, duration }) {
 
     const changeName = (value) => {
         setName(value);
-        saveChanges({name: value});
+        saveChanges({n: value});
     }
 
     const changeDuration = (value) => {
