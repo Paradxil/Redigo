@@ -109,7 +109,7 @@ export default function Track({ track, trackItems, reorderTrackItems }) {
                     {
                         track.map(id => {
                             let item = trackItems[id];
-                            return <VideoTrackItem key={item.id} id={item.id} name={item.name} />
+                            return <VideoTrackItem key={item.id} {...item} />
                         })
                     }
                 </SortableContext>
