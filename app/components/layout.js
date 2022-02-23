@@ -61,7 +61,7 @@ export default function Layout({ children, title, subtitle, back }) {
                     </HStack>
                     <UserMenu />
                 </HStack>
-                <Box padding={{base: 1, lg: 4}}>
+                <Box padding={{base: 4, lg: 4}}>
                     {children}
                 </Box>
             </Box>

@@ -31,12 +31,15 @@ class Animator {
 
         this.wrapper = wrapper;
         this.wrapper.style.position = 'relative';
-        this.wrapper.style.overflow = 'hidden';
-        this.wrapper.style.transformOrigin = 'top left';
-        this.wrapper.style.width = canvas.width + 'px';
-        this.wrapper.style.height = canvas.height + 'px';
 
         this.objectsWrapper = document.createElement("div");
+        this.objectsWrapper.style.position = 'absolute';
+        this.objectsWrapper.style.overflow = 'hidden';
+        this.objectsWrapper.style.top = '0';
+        this.objectsWrapper.style.left = '0';
+        this.objectsWrapper.style.transformOrigin = 'top left';
+        this.objectsWrapper.style.width = '100%';
+        this.objectsWrapper.style.height = '100%';
         this.wrapper.appendChild(this.objectsWrapper);
 
         this.canvas = canvas;

@@ -21,7 +21,7 @@ export default withAuth(
   config({
     server: {
       port: process.env.PORT||3002,
-      cors: { origin: ['http://localhost:3000'], credentials: true },
+      cors: { origin: [process.env.CORS_ORIGIN||'http://localhost:3000'], credentials: true },
     },
     // the db sets the database provider - we're using sqlite for the fastest startup experience
     db: {
@@ -38,7 +38,7 @@ export default withAuth(
       upload: 'local',
       local: {
         storagePath: 'public/files',
-        baseUrl: 'http://localhost:3002/files',
+        baseUrl: process.env.FILES_URL||'http://localhost:3002/files',
       },
     },
     lists,
