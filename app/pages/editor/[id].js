@@ -150,7 +150,7 @@ export default function Editor({ user }) {
                         </PopoverContent>
                     </Popover>
                 </HStack>
-                <Stack w='full' direction={{ base: 'column', md: 'row' }}>
+                <Stack w='full' direction={{ base: 'column', md: 'row' }} alignItems='flex-start'>
                     <Animator initAnimator={initAnimator} play={play} pause={pause} />
                     <Box p={4} flex='1'>
                         <Menu>
