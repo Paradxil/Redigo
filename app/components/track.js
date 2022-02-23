@@ -62,16 +62,29 @@ export const useTrack = (name, projectid, animator) => {
         sendTrackUpdates(tmpTrack);
     }
 
+    const removeTrackItem = (id) => {
+        let index = track.findIndex(i => id === i);
+
+        if(index != -1) {
+            track.splice(index, 1);
+            setTrack([...track]);
+            animator.setTrack(name, track);
+            animator.update();
+            sendTrackUpdates(track);
+        }
+    }
+
     return {
         setInitialTrack,
         reorderTrackItems,
         pushTrackItem,
+        removeTrackItem,
         track,
         loading
     }
 }
 
-export default function Track({ track, trackItems, reorderTrackItems }) {
+export default function Track({ track, trackItems, reorderTrackItems, removeTrackItem }) {
     const sensors = useSensors(
         useSensor(MouseSensor, {
             // Require the mouse to move by 10 pixels before activating
@@ -109,7 +122,7 @@ export default function Track({ track, trackItems, reorderTrackItems }) {
                     {
                         track.map(id => {
                             let item = trackItems[id];
-                            return <VideoTrackItem key={item.id} {...item} />
+                            return <VideoTrackItem key={item.id} onDelete={removeTrackItem} {...item} />
                         })
                     }
                 </SortableContext>

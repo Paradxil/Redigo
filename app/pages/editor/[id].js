@@ -66,6 +66,7 @@ export default function Editor({ user }) {
         setInitialTrack,
         pushTrackItem,
         reorderTrackItems,
+        removeTrackItem,
         loading: updatingTrack
     } = useTrack('videoTrack', projectid, animator)
 
@@ -169,7 +170,7 @@ export default function Editor({ user }) {
                                 onUploadCompleted={updateTrackItem}
                             />
                         </Menu>
-                        <Track track={track} trackItems={trackItems} reorderTrackItems={reorderTrackItems} />
+                        <Track track={track} trackItems={trackItems} reorderTrackItems={reorderTrackItems} removeTrackItem={removeTrackItem} />
                     </Box>
                 </Stack>
             </Container>

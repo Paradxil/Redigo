@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import {
     HStack,
     IconButton,
@@ -31,16 +33,17 @@ import { CSS } from '@dnd-kit/utilities';
 import { useMutation } from '@apollo/client';
 
 import UPDATE_ITEM_MUTATION from '../utils/queries/updateTrackItem';
-import { useState } from 'react';
+import DELETE_ITEM_MUTATION from '../utils/queries/deleteTrackitem';
 
-export default function VideoTrackItem({ name, id, duration }) {
-    const [updateTrackitem, { loading }] = useMutation(UPDATE_ITEM_MUTATION);
+export default function VideoTrackItem({ name, id, duration, onDelete }) {
+    const [updateTrackItem, { loading }] = useMutation(UPDATE_ITEM_MUTATION);
+    const [deleteTrackItem] = useMutation(DELETE_ITEM_MUTATION);
     const [_name, setName] = useState(name);
     const [_duration, setDuration] = useState(duration);
     const [editing, setEditing] = useState(false);
 
     const saveChanges = ({n, dur}) => {
-        updateTrackitem({
+        updateTrackItem({
             variables: {
                 id: id,
                 name: n||name,
@@ -59,6 +62,15 @@ export default function VideoTrackItem({ name, id, duration }) {
         value = parseInt(value);
         setDuration(value);
         saveChanges({dur: value});
+    }
+
+    const removeTrackitem = () => {
+        onDelete(id);
+        deleteTrackItem({
+            variables: {
+                id: id
+            }
+        })
     }
 
     const {
@@ -93,8 +105,8 @@ export default function VideoTrackItem({ name, id, duration }) {
                     <EditableInput value={_name} padding={2} />
                 </Editable>
                 <ButtonGroup isAttached={true}>
-                    <IconButton isLoading={loading} onClick={() => setEditing(!editing)} icon={editing?<CloseIcon/>:<EditIcon />} />
-                    <IconButton icon={<DeleteIcon/>}/>
+                    <IconButton isLoading={loading} icon={editing ? <CloseIcon /> : <EditIcon />} onClick={() => setEditing(!editing)} />
+                    <IconButton hidden={editing} icon={<DeleteIcon/>} onClick={removeTrackitem}/>
                 </ButtonGroup>
             </HStack>
             <VStack hidden={!editing} w='full' p={2} paddingLeft={12}>
