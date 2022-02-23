@@ -59,8 +59,9 @@ export default function Editor({ user }) {
         track,
         setInitialTrack,
         pushTrackItem,
-        reorderTrackItems
-    } = useTrack('videTrack', projectid, animator)
+        reorderTrackItems,
+        loading : updatingTrack
+    } = useTrack('videoTrack', projectid, animator)
 
     const { loading, data } = useQuery(GET_PROJECT_QUERY, {
         variables: { id: projectid }, 
@@ -123,7 +124,7 @@ export default function Editor({ user }) {
                 <HStack bg='white' p={4} rounded={8} marginBottom={4}>
                     <Input size='lg' placeholder='name' defaultValue={data?.project.name} onChange={setName}></Input>
                     <Button size='lg'>Export</Button>
-                    <IconButton isLoading={loading || loadingName || uploading || creatingItem} icon={<SaveIcon />} size='lg' variant='ghost' />
+                    <IconButton isLoading={loading || loadingName || uploading || creatingItem || updatingTrack} icon={<SaveIcon />} size='lg' variant='ghost' />
                 </HStack>
                 <Stack w='full' direction={{ base: 'column', md: 'row' }}>
                     <Animator initAnimator={initAnimator} play={play} pause={pause}/>
