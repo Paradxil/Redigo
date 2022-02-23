@@ -1,4 +1,4 @@
-import { Text, Heading, Box, Image, VStack, Button, Spinner, Center, HStack, Container, ButtonGroup, IconButton, Checkbox } from "@chakra-ui/react";
+import { Text, Heading, Box, Image, VStack, Button, Spinner, Center, HStack, Container, ButtonGroup, IconButton, Checkbox, Stack } from "@chakra-ui/react";
 import Layout from "../components/layout";
 
 import {
@@ -30,7 +30,7 @@ export default function Dashboard(props) {
 
     const [deleteProject, { loading: deletingProject }] = useMutation(DElETE_PROJECT_MUTATION, {
         onCompleted: () => {
-            client.refetchQueries({include: [PROJECTS_QUERY]});
+            client.refetchQueries({ include: [PROJECTS_QUERY] });
         }
     });
 
@@ -55,14 +55,14 @@ export default function Dashboard(props) {
                     >
                         <IconButton icon={<EditIcon />} />
                     </Link>
-                    <IconButton onClick={() => deleteProject({variables: {id: id}})} icon={<DeleteIcon />} />
+                    <IconButton onClick={() => deleteProject({ variables: { id: id } })} icon={<DeleteIcon />} />
                 </ButtonGroup>
             </HStack>
         )
     }
 
     const Projects = () => {
-        if (loading&&!data) {
+        if (loading && !data) {
             return (
                 <Spinner />
             )
@@ -75,12 +75,26 @@ export default function Dashboard(props) {
 
     return (
         <Layout title='Dashboard' subtitle={props.user.username}>
-            <Container maxW='container.lg'>
-                <Button variant={'solid'} isLoading={loadingNewProject} colorScheme='blue' leftIcon={<AddProjectIcon />} onClick={newProject}>New Project</Button>
-                <VStack wrap='wrap' marginTop={4}>
-                    <Projects />
-                </VStack>
-            </Container>
+            <Stack direction={{ base: 'column', lg: 'row' }}>
+                <Box w='full' p={4}>
+                    <HStack w='full' placeContent='space-between'>
+                        <Heading size='md'>Projects</Heading>
+                        <Button variant={'solid'} isLoading={loadingNewProject} colorScheme='blue' size='sm' leftIcon={<AddProjectIcon />} onClick={newProject}>New Project</Button>
+                    </HStack>
+                    <VStack wrap='wrap' w='full' marginTop={4}>
+                        <Projects />
+                    </VStack>
+                </Box>
+                {/* <Box w='full' p={4}>
+                    <HStack w='full' placeContent='space-between'>
+                        <Heading size='md'>Exports</Heading>
+                        <Button variant={'solid'} isLoading={loadingNewProject} size='sm' colorScheme='blue' onClick={newProject}>View All</Button>
+                    </HStack>
+                    <VStack wrap='wrap' w='full' marginTop={4}>
+                        <Projects />
+                    </VStack>
+                </Box> */}
+            </Stack>
         </Layout>
     )
 }

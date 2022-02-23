@@ -67,11 +67,17 @@ export default function Animator({ play, pause, initAnimator }) {
         setCanvasHeight(aspectRatio * canvasRef.current.width);
     }
 
+    const resizeCanvasCallback = resizeCanvas.bind(this);
+
     useEffect(() => {
-        window.addEventListener('resize', resizeCanvas.bind(this), false);
+        //window.addEventListener('resize', resizeCanvasCallback, false);
         resizeCanvas();
 
         initAnimator(canvasRef, wrapperRef);
+
+        // return () => {
+        //     window.removeEventListener('resize', resizeCanvasCallback, false);
+        // }
     }, []);
 
     return (
