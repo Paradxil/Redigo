@@ -8,6 +8,7 @@ mutation uploadFile($username:String!, $file:Upload!) {
       url
       filename
     }
+    type
   }
 }
 `

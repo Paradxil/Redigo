@@ -85,33 +85,28 @@ export default function Editor({ user }) {
         updateName({ variables: { id: projectid, name: e.target.value } });
     }
 
-    const selectFile = (file, upload, type = 'video') => {
+    const selectFile = (file, upload) => {
         if (upload) {
             return
         }
-
-        createTrackItem({
-            variables: {
-                projectid: projectid,
-                name: file.file.filename,
-                file: file.id,
-                duration: 5000
-            },
-            onCompleted: (d) => {
-                let itemData = d.createTrackItem;
-                let item = new TrackItem(itemData.id, itemData.name, type, itemData.data, itemData.duration, itemData.file.file.url);
-                setTrackItem(item);
-                pushTrackItem(item.id);
-            }
-        });
+        addTrackItem(file);
     }
 
-    const updateTrackItem = (file, type = 'video') => {
+    const updateTrackItem = (file) => {
+        addTrackItem(file);
+        setUploading(false);
+    }
+
+    const addTrackItem = (file) => {
+        // Parse the type
+        let type = file.type.split('/');
+
         createTrackItem({
             variables: {
                 projectid: projectid,
                 name: file.file.filename,
                 file: file.id,
+                type: type,
                 duration: 5000
             },
             onCompleted: (d) => {
@@ -121,7 +116,6 @@ export default function Editor({ user }) {
                 pushTrackItem(item.id);
             }
         });
-        setUploading(false);
     }
 
     const isLoading = () => {

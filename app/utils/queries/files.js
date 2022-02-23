@@ -8,6 +8,7 @@ const QUERY = gpl`
             filename
             url
         }
+        type
     }
 }
 `

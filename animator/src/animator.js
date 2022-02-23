@@ -129,6 +129,11 @@ class Animator {
         objWrapper.style.position = 'absolute';
         objWrapper.style.top = '0px';
         objWrapper.style.left = '0px';
+        objWrapper.style.width = '100%';
+        objWrapper.style.height = '100%';
+        objWrapper.style.display = 'flex';
+        objWrapper.style.placeContent = 'center';
+        objWrapper.style.alignItems = 'center';
         objWrapper.appendChild(objEl);
 
         //let properties = getProperties(obj);
@@ -284,8 +289,8 @@ const ImageFactory = {
     create: (item, canvas) => {
         var imgEl = document.createElement("img");
         imgEl.classList.add('image');
-        imgEl.src = item.file.url;
-        imgEl.style.height = canvas.width + 'px';
+        imgEl.src = item.file;
+        imgEl.style.height = '100%';
         imgEl.style.width = 'auto';
         imgEl.style.maxWidth = 'unset';
         return imgEl;
