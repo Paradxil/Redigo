@@ -27,7 +27,8 @@ export const useAnimator = (canvas, objWrapper) => {
     const setInitialTrackItems = (items) => {
         for (let data of items || []) {
             //id, name, type, data, duration, file
-            let item = new TrackItem(data.id, data.name, data.type, data.data, data.duration, data.file.file.url);
+            let type = file?.type.split('/')[0]||data.type;
+            let item = new TrackItem(data.id, data.name, type, data.data, data.duration, data.file.file.url);
             setTrackItem(item);
         }
     }
