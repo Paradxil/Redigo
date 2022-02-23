@@ -128,7 +128,7 @@ export default function Editor({ user }) {
     }
 
     return (
-        <Layout title='Editor' subtitle='New Project' back='/dashboard'>
+        <Layout title='Editor' back='/dashboard'>
             <Container maxW='container.xl'>
                 <HStack bg='white' p={4} rounded={8} marginBottom={4}>
                     <Input size='lg' placeholder='name' defaultValue={data?.project.name} onChange={setName}></Input>
@@ -151,9 +151,9 @@ export default function Editor({ user }) {
                         </PopoverContent>
                     </Popover>
                 </HStack>
-                <Stack w='full' direction={{ base: 'column', md: 'row' }} alignItems='flex-start'>
+                <Stack w='full' direction={{ base: 'column', lg: 'row' }} alignItems='flex-start'>
                     <Animator initAnimator={initAnimator} play={play} pause={pause} />
-                    <Box p={{base: 0, lg: 4}} flex='1'>
+                    <Box p={{base: 0, lg: 4}} paddingRight={{base: 0, lg: 0}} flex='1' w='full'>
                         <Menu>
                             <MenuButton as={Button} marginBottom={2} leftIcon={<AddIcon />} disabled={loading}>Add Media</MenuButton>
                             <MenuList>
