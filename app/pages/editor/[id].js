@@ -99,7 +99,7 @@ export default function Editor({ user }) {
 
     const addTrackItem = (file) => {
         // Parse the type
-        let type = file.type.split('/');
+        let type = file.type.split('/')[0];
 
         createTrackItem({
             variables: {
