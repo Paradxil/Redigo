@@ -46,7 +46,7 @@ export default function Dashboard(props) {
                     image ?
                         <Image src={image}></Image>
                         :
-                        <Center><ProjectIcon /></Center>
+                        ''
                 }
                 <Text flex={1}>{name}</Text>
                 <ButtonGroup isAttached={true}>

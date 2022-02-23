@@ -4,12 +4,22 @@ import {
     ButtonGroup,
     Editable,
     EditableInput,
-    EditablePreview
+    EditablePreview,
+    VStack,
+    Input,
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
+    NumberIncrementStepper,
+    NumberDecrementStepper,
+    FormControl,
+    FormLabel
 } from '@chakra-ui/react';
 
 import {
     FiMove as DragIcon,
-    FiEdit2 as EditIcon
+    FiEdit2 as EditIcon,
+    FiChevronUp as CloseIcon
 } from 'react-icons/fi'
 
 import {
@@ -25,13 +35,15 @@ import { useState } from 'react';
 export default function VideoTrackItem({ name, id, duration }) {
     const [updateTrackitem, { loading }] = useMutation(UPDATE_ITEM_MUTATION);
     const [_name, setName] = useState(name);
+    const [_duration, setDuration] = useState(duration);
+    const [editing, setEditing] = useState(false);
 
-    const saveChanges = (n) => {
+    const saveChanges = ({n, dur}) => {
         updateTrackitem({
             variables: {
                 id: id,
-                name: n,
-                duration: duration,
+                name: n||name,
+                duration: dur||duration,
                 data: {}
             }
         })
@@ -39,7 +51,13 @@ export default function VideoTrackItem({ name, id, duration }) {
 
     const changeName = (value) => {
         setName(value);
-        saveChanges(value);
+        saveChanges({name: value});
+    }
+
+    const changeDuration = (value) => {
+        value = parseInt(value);
+        setDuration(value);
+        saveChanges({dur: value});
     }
 
     const {
@@ -56,7 +74,7 @@ export default function VideoTrackItem({ name, id, duration }) {
     };
 
     return (
-        <HStack
+        <VStack
             w='full'
             bg='white'
             rounded={8}
@@ -67,14 +85,28 @@ export default function VideoTrackItem({ name, id, duration }) {
             id={id}
             p={2}
         >
-            <IconButton variant='ghost' {...listeners} icon={<DragIcon />} />
-            <Editable flex={1} value={_name} onChange={changeName}>
-                <EditablePreview />
-                <EditableInput value={_name} padding={2} />
-            </Editable>
-            <ButtonGroup>
-                <IconButton isLoading={loading} variant='ghost' icon={<EditIcon />} />
-            </ButtonGroup>
-        </HStack>
+            <HStack w='full'>
+                <IconButton variant='ghost' {...listeners} icon={<DragIcon />} />
+                <Editable flex={1} value={_name} onChange={changeName}>
+                    <EditablePreview />
+                    <EditableInput value={_name} padding={2} />
+                </Editable>
+                <ButtonGroup>
+                    <IconButton isLoading={loading} variant='ghost' onClick={() => setEditing(!editing)} icon={editing?<CloseIcon/>:<EditIcon />} />
+                </ButtonGroup>
+            </HStack>
+            <VStack hidden={!editing} w='full' p={2} paddingLeft={12}>
+                <FormControl>
+                    <FormLabel>Duration (ms)</FormLabel>
+                    <NumberInput w='full' value={_duration} onChange={changeDuration}>
+                        <NumberInputField />
+                        <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
+                </FormControl>
+            </VStack>
+        </VStack>
     )
 }
