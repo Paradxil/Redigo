@@ -75,8 +75,8 @@ export default function Animator({ play, pause, initAnimator }) {
     }, []);
 
     return (
-        <VStack bg='white' p={4} rounded={8} flex='1' width='full'>
-            <Center ref={wrapperRef} w='100%' maxW='400px'>
+        <VStack bg='white' p={0} spacing={0} overflow='hidden' shadow={'sm'} w={{base: 'full', lg: '500px'}} rounded={8}>
+            <Center ref={wrapperRef} w='100%' onMouseDown={() => { wrapperRef.current.requestFullscreen(); }} onMouseUp={() => { document.exitFullscreen();}}>
                 <canvas
                     style={{ width: '100%' }}
                     height={canvasH + 'px'}
@@ -84,7 +84,7 @@ export default function Animator({ play, pause, initAnimator }) {
                 >
                 </canvas>
             </Center>
-            <HStack>
+            <HStack p={4} >
                 <ButtonGroup isAttached>
                     <IconButton icon={<PlayIcon />} onClick={() => play()} />
                     <IconButton icon={<PauseIcon />} onClick={() => pause()} />

@@ -19,7 +19,8 @@ import {
 import {
     FiMove as DragIcon,
     FiEdit2 as EditIcon,
-    FiChevronUp as CloseIcon
+    FiChevronUp as CloseIcon,
+    FiDelete as DeleteIcon
 } from 'react-icons/fi'
 
 import {
@@ -91,8 +92,9 @@ export default function VideoTrackItem({ name, id, duration }) {
                     <EditablePreview />
                     <EditableInput value={_name} padding={2} />
                 </Editable>
-                <ButtonGroup>
-                    <IconButton isLoading={loading} variant='ghost' onClick={() => setEditing(!editing)} icon={editing?<CloseIcon/>:<EditIcon />} />
+                <ButtonGroup isAttached={true}>
+                    <IconButton isLoading={loading} onClick={() => setEditing(!editing)} icon={editing?<CloseIcon/>:<EditIcon />} />
+                    <IconButton icon={<DeleteIcon/>}/>
                 </ButtonGroup>
             </HStack>
             <VStack hidden={!editing} w='full' p={2} paddingLeft={12}>
