@@ -11,7 +11,13 @@ import {
     MenuButton,
     MenuList,
     MenuItem,
-    useDisclosure
+    useDisclosure,
+    Popover,
+    PopoverTrigger,
+    PopoverBody,
+    PopoverContent,
+    Text,
+    PopoverArrow
 } from "@chakra-ui/react";
 
 import {
@@ -60,11 +66,11 @@ export default function Editor({ user }) {
         setInitialTrack,
         pushTrackItem,
         reorderTrackItems,
-        loading : updatingTrack
+        loading: updatingTrack
     } = useTrack('videoTrack', projectid, animator)
 
     const { loading, data } = useQuery(GET_PROJECT_QUERY, {
-        variables: { id: projectid }, 
+        variables: { id: projectid },
         fetchPolicy: 'network-only',
         onCompleted: (d) => {
             setInitialTrackItems(d.project.trackItems);
@@ -118,19 +124,43 @@ export default function Editor({ user }) {
         setUploading(false);
     }
 
+    const isLoading = () => {
+        return loading
+            || loadingName
+            || uploading
+            || creatingItem
+            || updatingTrack;
+    }
+
     return (
         <Layout title='Editor' subtitle='New Project' back='/dashboard'>
             <Container maxW='container.xl'>
                 <HStack bg='white' p={4} rounded={8} marginBottom={4}>
                     <Input size='lg' placeholder='name' defaultValue={data?.project.name} onChange={setName}></Input>
                     <Button size='lg'>Export</Button>
-                    <IconButton isLoading={loading || loadingName || uploading || creatingItem || updatingTrack} icon={<SaveIcon />} size='lg' variant='ghost' />
+                    <Popover
+                        placement='bottom-end'
+                    >
+                        <PopoverTrigger>
+                            <IconButton isLoading={isLoading()} icon={<SaveIcon />} size='lg' variant='ghost' />
+                        </PopoverTrigger>
+                        <PopoverContent>
+                            <PopoverArrow/>
+                            <PopoverBody>
+                                {
+                                    isLoading()
+                                        ? <Text>Saving changes.</Text>
+                                        : <Text>Changes saved!</Text>
+                                }
+                            </PopoverBody>
+                        </PopoverContent>
+                    </Popover>
                 </HStack>
                 <Stack w='full' direction={{ base: 'column', md: 'row' }}>
-                    <Animator initAnimator={initAnimator} play={play} pause={pause}/>
+                    <Animator initAnimator={initAnimator} play={play} pause={pause} />
                     <Box p={4} flex='1'>
                         <Menu>
-                            <MenuButton as={Button} leftIcon={<AddIcon />} disabled={loading}>Add Media</MenuButton>
+                            <MenuButton as={Button} marginBottom={2} leftIcon={<AddIcon />} disabled={loading}>Add Media</MenuButton>
                             <MenuList>
                                 <MenuItem onClick={onOpen} icon={<VideoIcon />}>Video</MenuItem>
                                 <MenuItem onClick={onOpen} icon={<ImageIcon />}>Image</MenuItem>
@@ -145,7 +175,7 @@ export default function Editor({ user }) {
                                 onUploadCompleted={updateTrackItem}
                             />
                         </Menu>
-                        <Track track={track} trackItems={trackItems} reorderTrackItems={reorderTrackItems}/>
+                        <Track track={track} trackItems={trackItems} reorderTrackItems={reorderTrackItems} />
                     </Box>
                 </Stack>
             </Container>
