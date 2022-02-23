@@ -152,7 +152,7 @@ export default function Editor({ user }) {
                 </HStack>
                 <Stack w='full' direction={{ base: 'column', md: 'row' }} alignItems='flex-start'>
                     <Animator initAnimator={initAnimator} play={play} pause={pause} />
-                    <Box p={4} flex='1'>
+                    <Box p={{base: 0, lg: 4}} flex='1'>
                         <Menu>
                             <MenuButton as={Button} marginBottom={2} leftIcon={<AddIcon />} disabled={loading}>Add Media</MenuButton>
                             <MenuList>
