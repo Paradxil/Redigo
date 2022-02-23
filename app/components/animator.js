@@ -7,15 +7,19 @@ import {
     FiInstagram as InstagramIcon,
     FiYoutube as YoutubeIcon,
     FiPlay as PlayIcon,
-    FiPause as PauseIcon
+    FiPause as PauseIcon,
+    FiRotateCcw as RestartIcon
 } from "react-icons/fi";
 
 export const useAnimator = (canvas, objWrapper) => {
     const [animator] = useState(createAnimator());
     const [trackItems, setTrackItems] = useState({});
+    const [paused, setPaused] = useState(true);
 
     const initAnimator = (canvasRef, wrapperRef) => {
-        animator.init(canvasRef.current, wrapperRef.current);
+        animator.init(canvasRef.current, wrapperRef.current, ()=>{
+            setPaused(true);
+        });
     }
 
     const setTrackItem = (item) => {
@@ -38,11 +42,18 @@ export const useAnimator = (canvas, objWrapper) => {
     }
 
     const play = () => {
+        setPaused(false);
         animator.play();
     }
 
     const pause = () => {
+        setPaused(true);
         animator.pause();
+    }
+
+    const restart = () => {
+        setPaused(false);
+        animator.restart();
     }
 
     return {
@@ -50,14 +61,16 @@ export const useAnimator = (canvas, objWrapper) => {
         initAnimator,
         play,
         pause,
+        restart,
         setTrackItem,
         setInitialTrackItems,
         getTrackItem,
-        trackItems
+        trackItems,
+        paused
     }
 }
 
-export default function Animator({ play, pause, initAnimator }) {
+export default function Animator({ play, pause, initAnimator, paused, restart }) {
     const canvasRef = useRef(null);
     const wrapperRef = useRef(null);
 
@@ -67,21 +80,13 @@ export default function Animator({ play, pause, initAnimator }) {
         setCanvasHeight(aspectRatio * canvasRef.current.width);
     }
 
-    const resizeCanvasCallback = resizeCanvas.bind(this);
-
     useEffect(() => {
-        //window.addEventListener('resize', resizeCanvasCallback, false);
         resizeCanvas();
-
         initAnimator(canvasRef, wrapperRef);
-
-        // return () => {
-        //     window.removeEventListener('resize', resizeCanvasCallback, false);
-        // }
     }, []);
 
     return (
-        <VStack bg='white' p={0} spacing={0} overflow='hidden' shadow={'sm'} w={{base: 'full', lg: '500px'}} rounded={8}>
+        <VStack bg='white' p={0} spacing={0} overflow='hidden' shadow={'sm'} w={{base: 'full', lg: '400px'}} rounded={8}>
             <Center ref={wrapperRef} w='100%' onMouseDown={() => { wrapperRef.current.requestFullscreen(); }} onMouseUp={() => { document.exitFullscreen();}}>
                 <canvas
                     style={{ width: '100%' }}
@@ -92,8 +97,9 @@ export default function Animator({ play, pause, initAnimator }) {
             </Center>
             <HStack p={4} >
                 <ButtonGroup isAttached>
-                    <IconButton icon={<PlayIcon />} onClick={() => play()} />
-                    <IconButton icon={<PauseIcon />} onClick={() => pause()} />
+                    <IconButton icon={<PlayIcon />} disabled={!paused} onClick={() => play()} />
+                    <IconButton icon={<PauseIcon />} disabled={paused} onClick={() => pause()} />
+                    <IconButton icon={<RestartIcon />} onClick={() => restart()} />
                 </ButtonGroup>
                 <ButtonGroup isAttached>
                     <IconButton icon={<PhoneIcon />} onClick={() => resizeCanvas(16/9)} />

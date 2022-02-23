@@ -59,7 +59,7 @@ export default function VideoTrackItem({ name, id, duration, onDelete }) {
     }
 
     const changeDuration = (value) => {
-        value = parseInt(value);
+        value = parseInt(value)||500;
         setDuration(value);
         saveChanges({dur: value});
     }
@@ -112,7 +112,7 @@ export default function VideoTrackItem({ name, id, duration, onDelete }) {
             <VStack hidden={!editing} w='full' p={2} paddingLeft={12}>
                 <FormControl>
                     <FormLabel>Duration (ms)</FormLabel>
-                    <NumberInput w='full' value={_duration} onChange={changeDuration}>
+                    <NumberInput w='full' allowMouseWheel min={500} step={250} value={_duration} onChange={changeDuration}>
                         <NumberInputField />
                         <NumberInputStepper>
                             <NumberIncrementStepper />

@@ -10,17 +10,49 @@ class Animator {
         this.canvas = null;
         this.timeLine = null;
         this.wrapper = null;
+        this.completeCallback = null;
     }
 
     play() {
+        for (let id in this.trackItems) {
+            let item = this.trackItems[id];
+            let renderer = this.renderers[item.type];
+
+            if (renderer && renderer.resume) {
+                renderer.resume(item);
+            }
+        }
+
         this.timeLine?.play();
     }
 
     pause() {
+        for(let id in this.trackItems) {
+            let item = this.trackItems[id];
+            let renderer = this.renderers[item.type];
+
+            if(renderer && renderer.pause) {
+                renderer.pause(item);
+            }
+        }
+
         this.timeLine?.pause();
     }
 
-    init(canvas, wrapper) {
+    restart() {
+        this.timeLine?.pause();
+
+        // Cleanup current running animation
+        for(let id in this.trackItems) {
+            let item = this.trackItems[id];
+            let renderer = this.renderers[item.type];
+            renderer?.complete(item);
+        }
+
+        this.timeLine?.restart();
+    }
+
+    init(canvas, wrapper, completeCallback) {
         if (canvas == null) {
             throw new Error('Canvas is not defined.')
         }
@@ -28,6 +60,8 @@ class Animator {
         if(wrapper == null) {
             throw new Error('Object wrapper is not defined.')
         }
+
+        this.completeCallback = completeCallback;
 
         this.wrapper = wrapper;
         this.wrapper.style.position = 'relative';
@@ -114,7 +148,10 @@ class Animator {
         while(this.objectsWrapper.firstChild) {
             this.objectsWrapper.removeChild(this.objectsWrapper.firstChild);
         }
-        this.timeLine = anime.timeline();
+        this.timeLine = anime.timeline({
+            autoplay: false,
+            complete: this.completeCallback
+        });
         this.animate();
     }
 
@@ -203,6 +240,13 @@ const VideoRenderer =  {
     },
     complete: (item) => {
         item.getEl().pause();
+        item.getEl().currentTime = 0;
+    },
+    pause: (item) => {
+        item.getEl().pause();
+    },
+    resume: (item) => {
+        item.getEl().play();
     },
     render: function (item, ctx, canvas) {
         if(item.getEl().paused) {

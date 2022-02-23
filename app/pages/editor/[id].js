@@ -55,10 +55,12 @@ export default function Editor({ user }) {
         animator,
         play,
         pause,
+        restart,
         setTrackItem,
         setInitialTrackItems,
         initAnimator,
-        trackItems
+        trackItems,
+        paused
     } = useAnimator();
 
     const {
@@ -152,7 +154,7 @@ export default function Editor({ user }) {
                     </Popover>
                 </HStack>
                 <Stack w='full' direction={{ base: 'column', lg: 'row' }} alignItems='flex-start'>
-                    <Animator initAnimator={initAnimator} play={play} pause={pause} />
+                    <Animator initAnimator={initAnimator} play={play} pause={pause} paused={paused} restart={restart} />
                     <Box p={{base: 0, lg: 4}} paddingRight={{base: 0, lg: 0}} flex='1' w='full'>
                         <Menu>
                             <MenuButton as={Button} marginBottom={2} leftIcon={<AddIcon />} disabled={loading}>Add Media</MenuButton>
