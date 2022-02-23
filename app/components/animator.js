@@ -91,7 +91,7 @@ export default function Animator({ play, pause, initAnimator }) {
                 <ButtonGroup isAttached>
                     <IconButton icon={<PhoneIcon />} onClick={() => resizeCanvas(16/9)} />
                     <IconButton icon={<InstagramIcon />} onClick={() => resizeCanvas(1)} />
-                    <IconButton icon={<YoutubeIcon />} onClick={() => resizeCanvas(3/4)} />
+                    <IconButton icon={<YoutubeIcon />} onClick={() => resizeCanvas(9/16)} />
                 </ButtonGroup>
             </HStack>
         </VStack>
