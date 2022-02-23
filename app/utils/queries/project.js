@@ -13,6 +13,7 @@ query getProject($id: ID) {
                 file {
                     url
                 }
+                type
             }
             data
             type
