@@ -144,12 +144,11 @@ class Animator {
     }
 
     update() {
-        this.timeLine.pause();
         while(this.objectsWrapper.firstChild) {
             this.objectsWrapper.removeChild(this.objectsWrapper.firstChild);
         }
         this.timeLine = anime.timeline({
-            autoplay: false,
+            autoplay: !this.timeLine.paused,
             complete: this.completeCallback
         });
         this.animate();
