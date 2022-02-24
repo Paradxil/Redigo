@@ -120,6 +120,31 @@ export const lists: Lists = {
             }
         }
     }),
+    Export: list({
+        fields: {
+            status: select({
+                options: ['waiting', 'processing', 'completed'],
+                validation: {
+                    isRequired: true
+                },
+            }),
+            project: relationship({
+                ref: 'Project'
+            }),
+            sizes: relationship({
+                ref: 'ExportSize',
+                many: true
+            })
+        }
+    }),
+    ExportSize: list({
+        fields: {
+            name: text(),
+            width: integer(),
+            height: integer(),
+            framerate: integer()
+        }
+    }),
     TrackItem: list({
         fields: {
             name: text(),
@@ -147,6 +172,9 @@ export const lists: Lists = {
                 ref: 'User'
             }),
             file: file(),
+            export: relationship({
+                ref: 'Export'
+            }),
             type: virtual({
                 field: graphql.field({
                     type: graphql.String,

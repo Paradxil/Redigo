@@ -26,14 +26,35 @@ model FormSubmission {
 }
 
 model Project {
-  id         String      @id @default(cuid())
-  userid     User?       @relation("Project_userid", fields: [useridId], references: [id])
-  useridId   String?     @map("userid")
-  name       String      @default("")
-  trackItems TrackItem[] @relation("TrackItem_project")
-  track      String?
+  id                  String      @id @default(cuid())
+  userid              User?       @relation("Project_userid", fields: [useridId], references: [id])
+  useridId            String?     @map("userid")
+  name                String      @default("")
+  trackItems          TrackItem[] @relation("TrackItem_project")
+  track               String?
+  from_Export_project Export[]    @relation("Export_project")
 
   @@index([useridId])
+}
+
+model Export {
+  id               String       @id @default(cuid())
+  status           String
+  project          Project?     @relation("Export_project", fields: [projectId], references: [id])
+  projectId        String?      @map("project")
+  sizes            ExportSize[] @relation("Export_sizes")
+  from_File_export File[]       @relation("File_export")
+
+  @@index([projectId])
+}
+
+model ExportSize {
+  id                String   @id @default(cuid())
+  name              String   @default("")
+  width             Int?
+  height            Int?
+  framerate         Int?
+  from_Export_sizes Export[] @relation("Export_sizes")
 }
 
 model TrackItem {
@@ -58,7 +79,10 @@ model File {
   file_filesize       Int?
   file_mode           String?
   file_filename       String?
+  export              Export?     @relation("File_export", fields: [exportId], references: [id])
+  exportId            String?     @map("export")
   from_TrackItem_file TrackItem[] @relation("TrackItem_file")
 
   @@index([useridId])
+  @@index([exportId])
 }

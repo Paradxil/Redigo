@@ -211,6 +211,145 @@ input TrackItemRelateToManyForCreateInput {
   connect: [TrackItemWhereUniqueInput!]
 }
 
+type Export {
+  id: ID!
+  status: String
+  project: Project
+  sizes(
+    where: ExportSizeWhereInput! = {}
+    orderBy: [ExportSizeOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [ExportSize!]
+  sizesCount(where: ExportSizeWhereInput! = {}): Int
+}
+
+input ExportWhereUniqueInput {
+  id: ID
+}
+
+input ExportWhereInput {
+  AND: [ExportWhereInput!]
+  OR: [ExportWhereInput!]
+  NOT: [ExportWhereInput!]
+  id: IDFilter
+  status: StringFilter
+  project: ProjectWhereInput
+  sizes: ExportSizeManyRelationFilter
+}
+
+input ExportSizeManyRelationFilter {
+  every: ExportSizeWhereInput
+  some: ExportSizeWhereInput
+  none: ExportSizeWhereInput
+}
+
+input ExportOrderByInput {
+  id: OrderDirection
+  status: OrderDirection
+}
+
+input ExportUpdateInput {
+  status: String
+  project: ProjectRelateToOneForUpdateInput
+  sizes: ExportSizeRelateToManyForUpdateInput
+}
+
+input ProjectRelateToOneForUpdateInput {
+  create: ProjectCreateInput
+  connect: ProjectWhereUniqueInput
+  disconnect: Boolean
+}
+
+input ExportSizeRelateToManyForUpdateInput {
+  disconnect: [ExportSizeWhereUniqueInput!]
+  set: [ExportSizeWhereUniqueInput!]
+  create: [ExportSizeCreateInput!]
+  connect: [ExportSizeWhereUniqueInput!]
+}
+
+input ExportUpdateArgs {
+  where: ExportWhereUniqueInput!
+  data: ExportUpdateInput!
+}
+
+input ExportCreateInput {
+  status: String
+  project: ProjectRelateToOneForCreateInput
+  sizes: ExportSizeRelateToManyForCreateInput
+}
+
+input ProjectRelateToOneForCreateInput {
+  create: ProjectCreateInput
+  connect: ProjectWhereUniqueInput
+}
+
+input ExportSizeRelateToManyForCreateInput {
+  create: [ExportSizeCreateInput!]
+  connect: [ExportSizeWhereUniqueInput!]
+}
+
+type ExportSize {
+  id: ID!
+  name: String
+  width: Int
+  height: Int
+  framerate: Int
+}
+
+input ExportSizeWhereUniqueInput {
+  id: ID
+}
+
+input ExportSizeWhereInput {
+  AND: [ExportSizeWhereInput!]
+  OR: [ExportSizeWhereInput!]
+  NOT: [ExportSizeWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  width: IntNullableFilter
+  height: IntNullableFilter
+  framerate: IntNullableFilter
+}
+
+input IntNullableFilter {
+  equals: Int
+  in: [Int!]
+  notIn: [Int!]
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  not: IntNullableFilter
+}
+
+input ExportSizeOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  width: OrderDirection
+  height: OrderDirection
+  framerate: OrderDirection
+}
+
+input ExportSizeUpdateInput {
+  name: String
+  width: Int
+  height: Int
+  framerate: Int
+}
+
+input ExportSizeUpdateArgs {
+  where: ExportSizeWhereUniqueInput!
+  data: ExportSizeUpdateInput!
+}
+
+input ExportSizeCreateInput {
+  name: String
+  width: Int
+  height: Int
+  framerate: Int
+}
+
 type TrackItem {
   id: ID!
   name: String
@@ -237,17 +376,6 @@ input TrackItemWhereInput {
   type: StringFilter
 }
 
-input IntNullableFilter {
-  equals: Int
-  in: [Int!]
-  notIn: [Int!]
-  lt: Int
-  lte: Int
-  gt: Int
-  gte: Int
-  not: IntNullableFilter
-}
-
 input TrackItemOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -262,12 +390,6 @@ input TrackItemUpdateInput {
   file: FileRelateToOneForUpdateInput
   data: JSON
   type: String
-}
-
-input ProjectRelateToOneForUpdateInput {
-  create: ProjectCreateInput
-  connect: ProjectWhereUniqueInput
-  disconnect: Boolean
 }
 
 input FileRelateToOneForUpdateInput {
@@ -290,11 +412,6 @@ input TrackItemCreateInput {
   type: String
 }
 
-input ProjectRelateToOneForCreateInput {
-  create: ProjectCreateInput
-  connect: ProjectWhereUniqueInput
-}
-
 input FileRelateToOneForCreateInput {
   create: FileCreateInput
   connect: FileWhereUniqueInput
@@ -304,6 +421,7 @@ type File {
   id: ID!
   userid: User
   file: FileFieldOutput
+  export: Export
   type: String
 }
 
@@ -338,6 +456,7 @@ input FileWhereInput {
   NOT: [FileWhereInput!]
   id: IDFilter
   userid: UserWhereInput
+  export: ExportWhereInput
 }
 
 input FileOrderByInput {
@@ -347,6 +466,7 @@ input FileOrderByInput {
 input FileUpdateInput {
   userid: UserRelateToOneForUpdateInput
   file: FileFieldInput
+  export: ExportRelateToOneForUpdateInput
 }
 
 input FileFieldInput {
@@ -359,6 +479,12 @@ The `Upload` scalar type represents a file upload.
 """
 scalar Upload
 
+input ExportRelateToOneForUpdateInput {
+  create: ExportCreateInput
+  connect: ExportWhereUniqueInput
+  disconnect: Boolean
+}
+
 input FileUpdateArgs {
   where: FileWhereUniqueInput!
   data: FileUpdateInput!
@@ -367,6 +493,12 @@ input FileUpdateArgs {
 input FileCreateInput {
   userid: UserRelateToOneForCreateInput
   file: FileFieldInput
+  export: ExportRelateToOneForCreateInput
+}
+
+input ExportRelateToOneForCreateInput {
+  create: ExportCreateInput
+  connect: ExportWhereUniqueInput
 }
 
 """
@@ -404,6 +536,21 @@ type Mutation {
   updateProjects(data: [ProjectUpdateArgs!]!): [Project]
   deleteProject(where: ProjectWhereUniqueInput!): Project
   deleteProjects(where: [ProjectWhereUniqueInput!]!): [Project]
+  createExport(data: ExportCreateInput!): Export
+  createExports(data: [ExportCreateInput!]!): [Export]
+  updateExport(where: ExportWhereUniqueInput!, data: ExportUpdateInput!): Export
+  updateExports(data: [ExportUpdateArgs!]!): [Export]
+  deleteExport(where: ExportWhereUniqueInput!): Export
+  deleteExports(where: [ExportWhereUniqueInput!]!): [Export]
+  createExportSize(data: ExportSizeCreateInput!): ExportSize
+  createExportSizes(data: [ExportSizeCreateInput!]!): [ExportSize]
+  updateExportSize(
+    where: ExportSizeWhereUniqueInput!
+    data: ExportSizeUpdateInput!
+  ): ExportSize
+  updateExportSizes(data: [ExportSizeUpdateArgs!]!): [ExportSize]
+  deleteExportSize(where: ExportSizeWhereUniqueInput!): ExportSize
+  deleteExportSizes(where: [ExportSizeWhereUniqueInput!]!): [ExportSize]
   createTrackItem(data: TrackItemCreateInput!): TrackItem
   createTrackItems(data: [TrackItemCreateInput!]!): [TrackItem]
   updateTrackItem(
@@ -473,6 +620,22 @@ type Query {
   ): [Project!]
   project(where: ProjectWhereUniqueInput!): Project
   projectsCount(where: ProjectWhereInput! = {}): Int
+  exports(
+    where: ExportWhereInput! = {}
+    orderBy: [ExportOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Export!]
+  export(where: ExportWhereUniqueInput!): Export
+  exportsCount(where: ExportWhereInput! = {}): Int
+  exportSizes(
+    where: ExportSizeWhereInput! = {}
+    orderBy: [ExportSizeOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [ExportSize!]
+  exportSize(where: ExportSizeWhereUniqueInput!): ExportSize
+  exportSizesCount(where: ExportSizeWhereInput! = {}): Int
   trackItems(
     where: TrackItemWhereInput! = {}
     orderBy: [TrackItemOrderByInput!]! = []
