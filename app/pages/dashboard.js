@@ -76,7 +76,7 @@ export default function Dashboard(props) {
     return (
         <Layout title='Dashboard' subtitle={props.user.username}>
             <Stack direction={{ base: 'column', lg: 'row' }}>
-                <Box w='full' p={4}>
+                <Box flex={2} p={4}>
                     <HStack w='full' placeContent='space-between'>
                         <Heading size='md'>Projects</Heading>
                         <Button variant={'solid'} isLoading={loadingNewProject} colorScheme='blue' size='sm' leftIcon={<AddProjectIcon />} onClick={newProject}>New Project</Button>
@@ -85,7 +85,7 @@ export default function Dashboard(props) {
                         <Projects />
                     </VStack>
                 </Box>
-                {/* <Box w='full' p={4}>
+                <Box flex={1} p={4}>
                     <HStack w='full' placeContent='space-between'>
                         <Heading size='md'>Exports</Heading>
                         <Button variant={'solid'} isLoading={loadingNewProject} size='sm' colorScheme='blue' onClick={newProject}>View All</Button>
@@ -93,7 +93,7 @@ export default function Dashboard(props) {
                     <VStack wrap='wrap' w='full' marginTop={4}>
                         <Projects />
                     </VStack>
-                </Box> */}
+                </Box>
             </Stack>
         </Layout>
     )

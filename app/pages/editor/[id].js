@@ -42,6 +42,7 @@ import MediaSelect from "../../components/mediaSelect";
 import Animator, { useAnimator } from "../../components/animator";
 import Track, { useTrack } from "../../components/track";
 import { TrackItem } from "../../../animator/src/animator";
+import ExportModal from "../../components/exportModal";
 
 
 export default function Editor({ user }) {
@@ -134,7 +135,9 @@ export default function Editor({ user }) {
             <Container maxW='container.xl'>
                 <HStack bg='white' p={4} rounded={8} marginBottom={4}>
                     <Input size='lg' placeholder='name' defaultValue={data?.project.name} onChange={setName}></Input>
-                    <Button size='lg'>Export</Button>
+                    <ExportModal>
+                        <Button size='lg'>Export</Button>
+                    </ExportModal>
                     <Popover
                         placement='bottom-end'
                     >

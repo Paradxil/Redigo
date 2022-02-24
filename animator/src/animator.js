@@ -183,9 +183,6 @@ class Animator {
         objWrapper.style.alignItems = 'center';
         objWrapper.appendChild(objEl);
 
-        //let properties = getProperties(obj);
-        //objWrapper.style = objectToStyle(properties);
-
         this.objectsWrapper.appendChild(objWrapper);
     }
 }
@@ -213,33 +210,6 @@ export class TrackItem {
         return this.data;
     }
 }
-
-// export class Track {
-//     constructor() {
-//         this.animations = [];
-//     }
-
-//     pushAnimation(type, name, obj, duration) {
-//         this.animations.push({
-//             name: name,
-//             type: type,
-//             obj: obj,
-//             duration: duration
-//         });
-//     }
-
-//     removeAnimation(index) {
-//         this.animations.splice(index, 1);
-//     }
-
-//     getAnimations() {
-//         return this.animations;
-//     }
-
-//     setAnimations(animations) {
-//         this.animations = animations;
-//     }
-// }
 
 // DEFAULT RENDERERS --------------------------------------------------
 const VideoRenderer =  {
@@ -276,13 +246,6 @@ const VideoRenderer =  {
 
 const AudioRenderer = {
     render: function (item, ctx, canvas) {
-        // if (currentTime >= timeLineFrame.start + timeLineFrame.duration) {
-        //     if (!obj.el.paused) {
-        //         obj.el.pause();
-        //     }
-        //     return;
-        // }
-
         if (item.getEl().paused) {
             try {
                 //item.getEl().currentTime = (currentTime - timeLineFrame.start) / 1000;
