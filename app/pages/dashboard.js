@@ -82,12 +82,13 @@ export default function Dashboard(props) {
                         {
                             sizes.map(size =>
                                 <a
+                                    key={size.id}
                                     href={
                                         size.name.includes('facebook')
                                             ? 'https://www.facebook.com/groups/295828189318642'
                                             : 'https://www.youtube.com/watch?v=7PxSB6_SNTQ'}
                                 >
-                                    <Tag key={size.id} size='sm'>{size.name}
+                                    <Tag size='sm'>{size.name}
                                     </Tag>
                                 </a>
                             )
