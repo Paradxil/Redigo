@@ -34,7 +34,7 @@ export default function Dashboard(props) {
         }
     });
 
-    const { loading: loadingExports, data: exports } = useQuery(GET_EXPORTS_QUERY, {fetchPolicy: 'cache-and-network'});
+    const { loading: loadingExports, data: exports } = useQuery(GET_EXPORTS_QUERY, { fetchPolicy: 'cache-and-network' });
 
     const newProject = () => {
         createProject({ variables: { username: props.user.username, name: 'New Project' } });
@@ -76,14 +76,24 @@ export default function Dashboard(props) {
                 <VStack flex={1} alignItems='end'>
                     <HStack w='full'>
                         <Text flex={1}>{project.name}</Text>
-                        <Tag colorScheme={tagColors['completed']}>'uploaded'</Tag>
+                        <Tag colorScheme={tagColors['completed']}>uploaded</Tag>
                     </HStack>
                     <HStack wrap='wrap'>
                         {
-                            sizes.map(size => <Tag key={size.id} size='sm'>{size.name}</Tag>)
+                            sizes.map(size =>
+                                <a
+                                    href={
+                                        size.name.includes('facebook')
+                                            ? 'https://www.facebook.com/groups/295828189318642'
+                                            : 'https://www.youtube.com/watch?v=7PxSB6_SNTQ'}
+                                >
+                                    <Tag key={size.id} size='sm'>{size.name}
+                                    </Tag>
+                                </a>
+                            )
                         }
                     </HStack>
-                </VStack>   
+                </VStack>
                 {/* <ButtonGroup isAttached={true}>
                     <IconButton icon={<DeleteIcon />} />
                 </ButtonGroup> */}
