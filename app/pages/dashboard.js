@@ -84,7 +84,7 @@ export default function Dashboard(props) {
                                 <a
                                     key={size.id}
                                     href={
-                                        size.name.includes('facebook')
+                                        size.name.includes('Facebook')
                                             ? 'https://www.facebook.com/groups/295828189318642'
                                             : 'https://www.youtube.com/watch?v=7PxSB6_SNTQ'}
                                 >
