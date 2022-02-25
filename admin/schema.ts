@@ -144,7 +144,21 @@ export const lists: Lists = {
                 ref: 'ExportSize',
                 many: true
             })
+        },
+        access: {
+            filter: {
+                query: ({ session }) => {
+                    return { project: {userid: { id: { equals: session.itemId } } } }
+                },
+                update: ({ session }) => {
+                    return { project: { userid: { id: { equals: session.itemId } } } }
+                },
+                delete: ({ session }) => {
+                    return { project: { userid: { id: { equals: session.itemId } } } }
+                }
+            }
         }
+        
     }),
     ExportSize: list({
         fields: {
