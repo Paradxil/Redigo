@@ -5,7 +5,7 @@ import Link from 'next/link';
 import PasswordInput from "../components/passwordInput";
 import { useMutation } from "@apollo/client";
 
-import LOGIN_QUERY from '../utils/queries/login';
+import LOGIN_QUERY from '../utils/queries/auth/login';
 import { useState } from "react";
 
 import { useRouter } from 'next/router';

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from "next/router";
 import { useMutation } from "@apollo/client";
 
-import LOGOUT_MUTATION from '../utils/queries/logout'
+import LOGOUT_MUTATION from '../utils/queries/auth/logout'
 import client from "../utils/client";
 
 export default function Layout({ children, title, subtitle, back }) {

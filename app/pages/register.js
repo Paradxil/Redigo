@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useRouter } from 'next/router';
 
 
-import REGISTER_QUERY from '../utils/queries/register';
+import REGISTER_QUERY from '../utils/queries/auth/register';
 
 export default function Register() {
     const router = useRouter()
