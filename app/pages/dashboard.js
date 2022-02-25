@@ -76,7 +76,7 @@ export default function Dashboard(props) {
                 <VStack flex={1} alignItems='end'>
                     <HStack w='full'>
                         <Text flex={1}>{project.name}</Text>
-                        <Tag colorScheme={tagColors[status]}>{status}</Tag>
+                        <Tag colorScheme={tagColors['completed']}>'uploaded'</Tag>
                     </HStack>
                     <HStack wrap='wrap'>
                         {
