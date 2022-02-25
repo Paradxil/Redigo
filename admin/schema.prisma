@@ -39,7 +39,9 @@ model Project {
 
 model Export {
   id               String       @id @default(cuid())
-  status           String
+  timestamp        DateTime?    @default(now())
+  status           String?      @default("waiting")
+  error            String       @default("")
   project          Project?     @relation("Export_project", fields: [projectId], references: [id])
   projectId        String?      @map("project")
   sizes            ExportSize[] @relation("Export_sizes")

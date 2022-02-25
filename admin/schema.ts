@@ -122,12 +122,21 @@ export const lists: Lists = {
     }),
     Export: list({
         fields: {
-            status: select({
-                options: ['waiting', 'processing', 'completed'],
-                validation: {
-                    isRequired: true
+            timestamp: timestamp({
+                defaultValue: {
+                    kind: 'now'
                 },
+                access: {
+                    update: () => {
+                        return false
+                    }
+                }
             }),
+            status: select({
+                options: ['waiting', 'processing', 'completed', 'error'],
+                defaultValue: 'waiting'
+            }),
+            error: text(),
             project: relationship({
                 ref: 'Project'
             }),
