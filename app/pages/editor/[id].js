@@ -135,7 +135,7 @@ export default function Editor({ user }) {
             <Container maxW='container.xl'>
                 <HStack bg='white' p={4} rounded={8} marginBottom={4}>
                     <Input size='lg' placeholder='name' defaultValue={data?.project.name} onChange={setName}></Input>
-                    <ExportModal>
+                    <ExportModal projectid={projectid}>
                         <Button size='lg'>Export</Button>
                     </ExportModal>
                     <Popover

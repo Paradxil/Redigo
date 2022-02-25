@@ -1,4 +1,4 @@
-import { Text, Heading, Box, Image, VStack, Button, Spinner, Center, HStack, Container, ButtonGroup, IconButton, Checkbox, Stack } from "@chakra-ui/react";
+import { Text, Heading, Box, Image, VStack, Button, Spinner, Center, HStack, Container, ButtonGroup, IconButton, Checkbox, Stack, Tag } from "@chakra-ui/react";
 import Layout from "../components/layout";
 
 import {
@@ -11,6 +11,7 @@ import {
 import PROJECTS_QUERY from '../utils/queries/projects';
 import CREATE_PROJECT_MUTATION from '../utils/queries/createProject';
 import DElETE_PROJECT_MUTATION from '../utils/queries/deleteProject';
+import GET_EXPORTS_QUERY from "../utils/queries/export/getExports";
 
 import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
@@ -27,12 +28,13 @@ export default function Dashboard(props) {
             router.push('/editor/' + d.createProject.id);
         }
     });
-
     const [deleteProject, { loading: deletingProject }] = useMutation(DElETE_PROJECT_MUTATION, {
         onCompleted: () => {
             client.refetchQueries({ include: [PROJECTS_QUERY] });
         }
     });
+
+    const { loading: loadingExports, data: exports } = useQuery(GET_EXPORTS_QUERY, {fetchPolicy: 'cache-and-network'});
 
     const newProject = () => {
         createProject({ variables: { username: props.user.username, name: 'New Project' } });
@@ -61,6 +63,34 @@ export default function Dashboard(props) {
         )
     }
 
+    const ExportCard = ({ project, id, sizes, status }) => {
+        const tagColors = {
+            'waiting': 'yellow',
+            'processing': 'blue',
+            'completed': 'green',
+            'error': 'red'
+        }
+
+        return (
+            <HStack w='full' bg='white' padding={4} shadow='sm' rounded={8}>
+                <VStack flex={1} alignItems='end'>
+                    <HStack w='full'>
+                        <Text flex={1}>{project.name}</Text>
+                        <Tag colorScheme={tagColors[status]}>{status}</Tag>
+                    </HStack>
+                    <HStack wrap='wrap'>
+                        {
+                            sizes.map(size => <Tag key={size.id} size='sm'>{size.name}</Tag>)
+                        }
+                    </HStack>
+                </VStack>   
+                {/* <ButtonGroup isAttached={true}>
+                    <IconButton icon={<DeleteIcon />} />
+                </ButtonGroup> */}
+            </HStack>
+        )
+    }
+
     const Projects = () => {
         if (loading && !data) {
             return (
@@ -70,6 +100,18 @@ export default function Dashboard(props) {
 
         return (
             data.projects.map(el => <ProjectCard key={el.id} id={el.id} name={el.name} image='' />)
+        )
+    }
+
+    const Exports = () => {
+        if (loadingExports && !exports) {
+            return (
+                <Spinner />
+            )
+        }
+
+        return (
+            exports.exports.map(el => <ExportCard key={el.id} {...el} />)
         )
     }
 
@@ -88,10 +130,10 @@ export default function Dashboard(props) {
                 <Box flex={1} p={4}>
                     <HStack w='full' placeContent='space-between'>
                         <Heading size='md'>Exports</Heading>
-                        <Button variant={'solid'} isLoading={loadingNewProject} size='sm' colorScheme='blue' onClick={newProject}>View All</Button>
+                        <Button variant={'solid'} isLoading={loadingNewProject} size='sm' colorScheme='blue'>View All</Button>
                     </HStack>
                     <VStack wrap='wrap' w='full' marginTop={4}>
-                        <Projects />
+                        <Exports />
                     </VStack>
                 </Box>
             </Stack>
