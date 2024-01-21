@@ -1,0 +1,31 @@
+{
+  "name": "render",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-examples": "glob ./examples/**/.ts -c tsc",
+    "bundle-examples": "browserify ./examples/box/animation.js --standalone ANI > ./examples/box/bundle.js",
+    "dev": "ts-node src/main.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/animejs": "^3.1.12",
+    "@types/sinonjs__fake-timers": "^8.1.5",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@sinonjs/fake-timers": "^11.2.2",
+    "animejs": "^3.2.2",
+    "browserify": "^17.0.0",
+    "glob": "^10.3.10",
+    "prettier": "^3.2.4",
+    "puppeteer": "^21.7.0",
+    "rollup": "^4.9.5",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.6.2",
+    "typed.js": "^2.1.0"
+  }
+}
