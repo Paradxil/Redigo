@@ -1,9 +1,11 @@
-import { spawnSync } from "child_process";
-import { existsSync, writeFileSync } from "fs";
+import { spawn } from "child_process";
+import { existsSync, writeFileSync, createWriteStream } from "fs";
 import { join } from "path";
 import { render } from "../src/render";
+import yargs from "yargs/yargs";
+import { hideBin } from "yargs/helpers";
 
-const renderExample = async (example: string) => {
+const renderExample = async (example: string, fps: number, seconds: number) => {
   const exampleDir = join(__dirname, `./${example}`);
   const animationScript = `${exampleDir}/animation.ts`;
   const compiledScript = `${exampleDir}/animation.js`;
@@ -12,21 +14,25 @@ const renderExample = async (example: string) => {
     process.exit(1);
   }
 
-  spawnSync(`npx`, ["tsc", animationScript]);
-  const out = spawnSync("npx", [
+  const tsc = spawn("npx", ["tsc", animationScript]);
+  await new Promise((resolve) => tsc.once("exit", resolve));
+
+  const cmd = spawn("npx", [
     "browserify",
     compiledScript,
     "--standalone",
     "ANI",
   ]);
-  writeFileSync(`${exampleDir}/bundle.js`, out.stdout);
+  const file = createWriteStream(`${exampleDir}/bundle.js`);
+  cmd.stdout.pipe(file);
 
-  const fps = 60;
+  await new Promise((resolve) => cmd.once("exit", resolve));
+  file.close();
 
   await render({
     animation: join("file://", exampleDir, "index.html"),
     start: 0,
-    end: fps * 10,
+    end: fps * seconds,
     viewport: {
       height: 1080,
       width: 1920,
@@ -37,5 +43,13 @@ const renderExample = async (example: string) => {
   process.exit(0);
 };
 
-const example = process.argv[2];
-renderExample(example);
+const argv: {
+  name: string;
+  seconds: number;
+  fps: number;
+} = yargs(hideBin(process.argv))
+  .default("name", "conveyors")
+  .default("fps", 60)
+  .default("seconds", 10)
+  .parse() as never;
+renderExample(argv.name, argv.fps, argv.seconds);

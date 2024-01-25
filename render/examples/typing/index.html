@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        display: flex;
+        place-content: center;
+        align-items: center;
+      }
+
+      #code {
+        background-color: #343a40;
+        color: white;
+        font-size: 16px;
+        border-radius: 12px;
+        padding: 24px;
+        padding-top: 10px;
+        margin: 10px;
+        box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15);
+        width: min-content;
+      }
+    </style>
+    <link rel="stylesheet" href="./github-dark.css" />
+  </head>
+
+  <body>
+    <pre id="code"><code id="content"></code></pre>
+    <script src="./bundle.js"></script>
+  </body>
+</html>

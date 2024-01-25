@@ -9,12 +9,13 @@
       }
 
       .wrapper {
-        width: 100%;
-        height: 100%;
+        position: absolute;
+        top: -500px;
+        left: -500px;
       }
 
       .tile {
-        position: fixed;
+        position: absolute;
         width: 44px;
         height: 44px;
         font-size: 34px;
@@ -38,6 +39,26 @@
         margin: 10px;
         color: rgb(153, 161, 167);
         background-color: #0b151d;
+      }
+
+      .spawner {
+        z-index: 5;
+        border-radius: 8px;
+        width: calc(44px - 18px);
+        height: calc(44px - 18px);
+        margin: 10px;
+        color: #283542;
+        background-color: #0b151d;
+      }
+
+      .incinerator {
+        background-color: #0b151d;
+        color: #703d3d;
+      }
+
+      .deleted {
+        opacity: 0 !important;
+        transform: scale(0) !important;
       }
     </style>
   </head>
