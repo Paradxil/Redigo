@@ -1,15 +1,19 @@
 import * as anime from "animejs";
 import { icons } from "feather-icons";
-import { data } from "./data";
-const ticks: {
-  positions: { [key: number]: number };
-  tiles: { id: number; tile: string }[];
-}[] = data.ticks;
+import { data } from "./three-way-problem";
+const { ticks } = data;
 
-const MAP_WIDTH = 100;
+const MAP_WIDTH = 9;
 const TILE_SIZE = 40;
 const GAP = 10;
 const SPEED = 500;
+
+export const colors = {
+  A: "#ffd8a8",
+  B: "#b2f2bb",
+  C: "#99e9f2",
+  D: "#d0bfff",
+};
 
 enum TileType {
   Item = "item",
@@ -26,11 +30,11 @@ const getTileType = (type: string): TileType => {
   if (type === "incinerator") return TileType.Incinerator;
   return TileType.Conveyor;
 };
-const getIcon = (type: string) => {
+const getIcon = ({ type, dir }: { type: string; dir?: string }) => {
   if (type === "item") return "box";
   if (type === "spawner") return "plus";
   if (type === "incinerator") return "trash";
-  return `chevrons-${type}`;
+  return `chevrons-${dir}`;
 };
 const getPos = (index: number) => {
   if (index == null) {
@@ -196,36 +200,35 @@ animations.push(
   })
 );
 
-animations.push(
-  anime({
-    autoplay: false,
-    targets: "#tilemap",
-    duration: ticks.length * SPEED,
-    keyframes: [
-      {
-        left: "-3000px",
-        top: "-2000px",
-      },
-      {
-        left: "-500px",
-        top: "-3000px",
-      },
-    ],
-    easing: "easeInOutQuad",
-  })
-);
+// animations.push(
+//   anime({
+//     autoplay: false,
+//     targets: "#tilemap",
+//     duration: ticks.length * SPEED,
+//     keyframes: [
+//       {
+//         left: "-3000px",
+//         top: "-2000px",
+//       },
+//       {
+//         left: "-500px",
+//         top: "-3000px",
+//       },
+//     ],
+//     easing: "easeInOutQuad",
+//   })
+// );
 
 const els: { [key: number]: HTMLDivElement } = {};
 
-export function tick(timeStep: number) {
-  animations.forEach((a) => a.tick(timeStep));
+export function tick(timeStep: number, curTime: number) {
+  animations.forEach((a) => a.tick(curTime));
 
   if (time.tick >= ticks.length) {
     return;
   }
 
   const { tiles, positions } = ticks[time.tick];
-
   const { positions: lastPositions } = ticks[time.tick - 1];
 
   tiles
@@ -235,12 +238,13 @@ export function tick(timeStep: number) {
       const el = document.createElement("div");
       el.id = getTileId(id);
       el.classList.add("tile");
-      el.classList.add(getTileClass(tile));
-      el.style.transform = "translateY(-10px)";
+      el.classList.add(getTileClass(tile.type));
+      //el.style.transform = "translateY(-10px)";
       el.style.opacity = "0";
       const { x, y } = getPos(positions[id]);
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
+      el.style.color = tile?.char ? colors[tile.char] : "";
 
       const iconName = getIcon(tile);
 
@@ -257,7 +261,9 @@ export function tick(timeStep: number) {
     const { x: lastX, y: lastY } = getPos(lastPositions[id]) ?? { x, y };
 
     if (x == null || y == null) {
-      el.classList.add("deleted");
+      //el.classList.add("deleted");
+      const opacity = Math.min(+el.style.opacity, 1.0 - time.interpolation);
+      el.style.opacity = opacity.toString();
       return;
     }
 
@@ -270,7 +276,7 @@ export function tick(timeStep: number) {
     );
     el.style.left = `${ix}px`;
     el.style.top = `${iy}px`;
-    el.style.transform = `translateY(-${transform}px)`;
+    //el.style.transform = `translateY(-${transform}px)`;
     el.style.opacity = opacity.toString();
   });
 }

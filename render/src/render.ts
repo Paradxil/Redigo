@@ -57,9 +57,7 @@ export const render = async ({
       return animations;
     }, curTime);
 
-    const data = await page.evaluate(`ANI.tick(${timeStep})`);
-
-    console.log("Rendering frame", { data });
+    const data = await page.evaluate(`ANI.tick(${timeStep}, ${curTime})`);
 
     const buffer = await page.screenshot({
       clip: {

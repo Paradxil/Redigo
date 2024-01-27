@@ -14,7 +14,7 @@ const renderExample = async (example: string, fps: number, seconds: number) => {
     process.exit(1);
   }
 
-  const tsc = spawn("npx", ["tsc", animationScript]);
+  const tsc = spawn("npx", ["tsc", animationScript], { stdio: "inherit" });
   await new Promise((resolve) => tsc.once("exit", resolve));
 
   const cmd = spawn("npx", [
