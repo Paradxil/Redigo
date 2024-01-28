@@ -1,12 +1,12 @@
 import * as anime from "animejs";
 import { icons } from "feather-icons";
-import { data } from "./three-way-problem";
+import { data } from "./loop";
 const { ticks } = data;
 
 const MAP_WIDTH = 9;
 const TILE_SIZE = 50;
 const GAP = 10;
-const SPEED = 500;
+const SPEED = 750;
 const SHOW_GRID = true;
 const SETUP_INITIAL_TILES = true;
 const LINE_THICKNESS = 4;
@@ -99,7 +99,6 @@ if (SHOW_GRID) {
   });
 
   timeline.add({
-    autoplay: false,
     targets: ".gridline.vertical",
     duration: 1000,
     delay: function (_, index) {
@@ -117,7 +116,6 @@ if (SHOW_GRID) {
   });
 
   timeline.add({
-    autoplay: false,
     targets: ".gridline.horizontal",
     duration: 1000,
     delay: function (_, index) {
@@ -135,9 +133,17 @@ if (SHOW_GRID) {
   });
 }
 
+// timeline.add({
+//   targets: ".gridline",
+//   duration: 1000,
+//   easing: "easeInOutExpo",
+//   backgroundColor: "#2e3e4d",
+// });
+
 if (SETUP_INITIAL_TILES) {
   const { positions, tiles } = ticks[0];
-  tiles
+  const sorted = tiles.sort((a, b) => +a.id - +b.id);
+  sorted
     .filter(({ id }) => !Object.keys(els).includes(id.toString()))
     .forEach(({ id, tile }) => {
       const el = document.createElement("div");
@@ -154,7 +160,7 @@ if (SETUP_INITIAL_TILES) {
 
       const iconName = getIcon(tile);
 
-      const icon = icons[iconName].toSvg({ height: TILE_SIZE * 0.75 });
+      const icon = icons[iconName].toSvg();
       el.innerHTML = icon;
 
       container.appendChild(el);
@@ -163,7 +169,6 @@ if (SETUP_INITIAL_TILES) {
     });
 
   timeline.add({
-    autoplay: false,
     targets: ".tile",
     duration: 1000,
     delay: function (_, index) {
@@ -179,17 +184,19 @@ if (SETUP_INITIAL_TILES) {
   });
 }
 
-const animation = anime({
-  autoplay: false,
-  targets: time,
-  interpolation: 1.0,
-  duration: SPEED,
-  loop: true,
-  easing: "easeInOutQuad",
-  loopBegin: () => {
-    time.tick += 1;
-  },
-});
+animations.push(
+  anime({
+    autoplay: false,
+    targets: time,
+    interpolation: 1.0,
+    duration: SPEED,
+    loop: true,
+    easing: "easeInOutQuad",
+    loopBegin: () => {
+      time.tick += 1;
+    },
+  })
+);
 
 // animations.push(
 //   anime({
@@ -224,11 +231,11 @@ const animation = anime({
 // );
 
 export function tick(timeStep: number, curTime: number) {
-  //animations.forEach((a) => a.tick(curTime));
   timeline.tick(curTime);
 
   if (timeline.completed) {
-    animation.tick(curTime);
+    animations.forEach((a) => a.tick(curTime));
+    //animation.tick(curTime);
   }
 
   if (time.tick >= ticks.length) {
@@ -245,10 +252,10 @@ export function tick(timeStep: number, curTime: number) {
       el.id = getTileId(id);
       el.classList.add("tile");
       el.classList.add(getTileClass(tile.type));
-      el.style.opacity = "0";
       const { x, y } = getPos(positions[id]);
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
+      el.style.opacity = "0";
       el.style.color = (tile as never as { char: string })?.char
         ? colors[(tile as never as { char: string }).char]
         : "";
@@ -261,6 +268,18 @@ export function tick(timeStep: number, curTime: number) {
       container.appendChild(el);
 
       els[id] = el;
+
+      animations.push(
+        anime({
+          autoplay: false,
+          targets: el,
+          duration: 1000,
+          easing: "easeOutElastic",
+          elasticity: 650,
+          opacity: [0, 1],
+          scale: [0, 1],
+        })
+      );
     });
 
   Object.entries(els).forEach(([id, el]) => {
@@ -275,10 +294,10 @@ export function tick(timeStep: number, curTime: number) {
 
     const ix = (x - lastX) * time.interpolation + lastX;
     const iy = (y - lastY) * time.interpolation + lastY;
-    const opacity = Math.max(+el.style.opacity, time.interpolation);
+    //const opacity = Math.max(+el.style.opacity, time.interpolation);
 
     el.style.left = `${ix}px`;
     el.style.top = `${iy}px`;
-    el.style.opacity = opacity.toString();
+    // el.style.opacity = opacity.toString();
   });
 }

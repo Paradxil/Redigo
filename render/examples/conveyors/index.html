@@ -12,7 +12,7 @@
       }
 
       .gridline {
-        background-color: #55687a;
+        background-color: #3a4753;
         position: absolute;
       }
 
@@ -24,8 +24,8 @@
 
       .tile {
         position: absolute;
-        width: 52px;
-        height: 52px;
+        width: 54px;
+        height: 54px;
         font-weight: 700;
         border-radius: 16px;
         display: flex;
@@ -43,11 +43,13 @@
         z-index: 10;
         color: rgb(153, 161, 167);
         background-color: transparent;
+        font-size: 34px;
       }
 
       .item svg {
         /* background-color: #55687a; */
-        backdrop-filter: blur(40px);
+        /* backdrop-filter: blur(8px); */
+        fill: #55687a;
       }
 
       .spawner {
@@ -64,6 +66,10 @@
       .deleted {
         opacity: 0 !important;
         transform: scale(0) !important;
+      }
+
+      svg {
+        width: 1em;
       }
     </style>
   </head>
