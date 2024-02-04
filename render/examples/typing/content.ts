@@ -1,9 +1,9 @@
 export const texts = [
   `
-// Get the position of the tile the conveyor is pointing at.
-let Some(next_pos) = map.transpose_tile_pos(pos, &self.0) else {
-    outputs.push(TickResult::Ok);
-    return TickResult::Combined(outputs);
-};
+pub trait Tile: Any {
+  fn tick(&self, tick: Tick) -> TickResult;
+  fn format(&self) -> (char, Color, Color, usize);
+  fn priority(&self, tick_count: usize) -> usize;
+}
 `,
 ];

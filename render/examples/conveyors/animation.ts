@@ -1,13 +1,13 @@
 import * as anime from "animejs";
 import { icons } from "feather-icons";
-import { data } from "./loop";
+import { data } from "./three-way-solution";
 const { ticks } = data;
 
 const MAP_WIDTH = 9;
 const TILE_SIZE = 50;
 const GAP = 10;
 const SPEED = 750;
-const SHOW_GRID = true;
+const SHOW_GRID = false;
 const SETUP_INITIAL_TILES = true;
 const LINE_THICKNESS = 4;
 
@@ -56,7 +56,7 @@ const animations = [];
 
 let time = {
   interpolation: 0.0,
-  tick: 1,
+  tick: 0,
 };
 
 const timeline = anime.timeline({
@@ -243,7 +243,8 @@ export function tick(timeStep: number, curTime: number) {
   }
 
   const { tiles, positions } = ticks[time.tick];
-  const { positions: lastPositions } = ticks[time.tick - 1];
+  const { positions: lastPositions } =
+    time.tick > 0 ? ticks[time.tick - 1] : { positions };
 
   tiles
     .filter(({ id }) => !Object.keys(els).includes(id.toString()))
